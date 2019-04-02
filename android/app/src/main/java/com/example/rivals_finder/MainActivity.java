@@ -1,4 +1,4 @@
-package com.example.rivals_finder;
+package com.hack.rivalsFinder;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
