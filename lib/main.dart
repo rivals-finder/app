@@ -1,66 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import './home.dart';
+import './auth.dart';
 
 void main() => runApp(RivalsFinder());
 
-class RivalsFinder extends StatelessWidget {
+class RivalsFinder extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Home(title: 'Rivals Finder'),
-    );
+  _MainState createState() => _MainState();
+}
+
+class _MainState extends State<RivalsFinder> {
+  bool loading = true;
+  FirebaseUser mCurrentUser;
+  FirebaseAuth _auth;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = FirebaseAuth.instance;
+    _getCurrentUser();
   }
-}
 
-class Home extends StatefulWidget {
-  Home({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _HomeState createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
+  _getCurrentUser() async {
+    mCurrentUser = await _auth.currentUser();
+    print('Hello ' + mCurrentUser.toString());
     setState(() {
-      _selectedIndex = index;
+      loading = false;
+      mCurrentUser = mCurrentUser;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: Icon(Icons.person),
-          onPressed: () {},
-        ),
-      ),
-      body: Center(child: Text('Tensor Hack 2019')),
-      bottomNavigationBar: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-              icon: Icon(Icons.timer), title: Text('Предложения')),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.new_releases), title: Text('Новости')),
-        ],
-        currentIndex: _selectedIndex,
-        fixedColor: Colors.deepPurple,
-        onTap: _onItemTapped,
-      ),
-      floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton(
-              onPressed: () {},
-              tooltip: 'Add',
-              child: Icon(Icons.add),
-            )
-          : null,
-    );
+    return MaterialApp(
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: loading
+            ? Scaffold(
+                appBar: AppBar(
+                  title: Text('Добро пожаловать!'),
+                ),
+                body: Container(
+                  child: Text('Loading...'),
+                ))
+            : (mCurrentUser != null ? Home(user: mCurrentUser) : Auth()));
   }
 }
