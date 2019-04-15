@@ -17,8 +17,6 @@ class _AuthState extends State<Auth> {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   void _loginPressed() async {
-    print(
-        'The user wants to login with ${_emailFilter.text} and ${_passwordFilter.text}');
     final FirebaseUser user = await auth.signInWithEmailAndPassword(
         email: _emailFilter.text, password: _passwordFilter.text);
     Navigator.push(

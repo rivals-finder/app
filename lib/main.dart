@@ -24,7 +24,6 @@ class _MainState extends State<RivalsFinder> {
 
   _getCurrentUser() async {
     mCurrentUser = await _auth.currentUser();
-    print('Hello ' + mCurrentUser.toString());
     setState(() {
       loading = false;
       mCurrentUser = mCurrentUser;
