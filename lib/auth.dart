@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import './home.dart';
+import './bloc/bloc.dart';
 
 class Auth extends StatefulWidget {
   Auth({Key key, this.title}) : super(key: key);
@@ -14,11 +14,16 @@ class Auth extends StatefulWidget {
 class _AuthState extends State<Auth> {
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  FireBloc fireBloc;
+
+  void initState() {
+    super.initState();
+    fireBloc = BlocProvider.of(context);
+  }
 
   void _loginPressed() async {
-    final FirebaseUser user = await auth.signInWithEmailAndPassword(
-        email: _emailFilter.text, password: _passwordFilter.text);
+    final FirebaseUser user =
+        await fireBloc.logIn(_emailFilter.text, _passwordFilter.text);
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Home(user: user)),

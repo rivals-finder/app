@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import './auth.dart';
+import './bloc/bloc.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.user}) : super(key: key);
-
   final FirebaseUser user;
 
   @override
@@ -13,6 +12,18 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
+  FireBloc fireBloc;
+
+  void initState() {
+    super.initState();
+    fireBloc = BlocProvider.of(context);
+    getList();
+  }
+
+  getList() async {
+    var q = await fireBloc.getTestList();
+    print(q);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -34,7 +45,7 @@ class _HomeState extends State<Home> {
           IconButton(
             icon: Icon(Icons.exit_to_app),
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+              await fireBloc.logOut();
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Auth()),
