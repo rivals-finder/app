@@ -40,7 +40,7 @@ class CreatorState extends State<Creator> {
             icon: new Icon(Icons.check),
             onPressed: () async {
               if (_currentItemSelectedType != null &&
-                  _currentItemSelectedTime!= null &&
+                  _currentItemSelectedTime != null &&
                   myController.text != null) {
                 var user = await fireBloc.getCurrentUser();
                 var name;
