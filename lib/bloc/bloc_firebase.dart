@@ -8,11 +8,17 @@ class FireBloc extends BlocBase {
   FirebaseDatabase databaseReference = FirebaseDatabase.instance;
 
   getSuggestionsStream() {
-    return databaseReference.reference().child('Suggestions').limitToLast(10).onValue;
+    return databaseReference
+        .reference()
+        .child('Suggestions')
+        .orderByChild('time')
+        .limitToLast(100)
+        .onValue;
   }
-  
-  void createGame(map) {
-    databaseReference.reference().child("Suggestions").push().set(map);
+
+  void createGame(map) async {
+    var item = databaseReference.reference().child("Suggestions").push();
+    await item.set(map);
   }
 
   getTestList() async {
@@ -27,8 +33,16 @@ class FireBloc extends BlocBase {
     await faInstance.signInWithEmailAndPassword(email: email, password: pass);
   }
 
-  getCurrentUser() {
-    return faInstance.currentUser();
+  getCurrentUser() async {
+    return await faInstance.currentUser();
+  }
+
+  changeCurrentUserInfo(String newName, String newPass) async {
+    var user = await faInstance.currentUser();
+    UserUpdateInfo info = new UserUpdateInfo();
+    info.displayName = newName;
+    await user.updateProfile(info);
+    await user.updatePassword(newPass);
   }
 
   @override

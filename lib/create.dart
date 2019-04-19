@@ -17,7 +17,6 @@ class CreatorState extends State<Creator> {
 
   @override
   void dispose() {
-    // Clean up the controller when the Widget is disposed
     myController.dispose();
     super.dispose();
   }
@@ -42,19 +41,16 @@ class CreatorState extends State<Creator> {
               if (_currentItemSelectedType != null &&
                   _currentItemSelectedTime != null &&
                   myController.text != null) {
-                var user = await fireBloc.getCurrentUser();
-                var name;
-                if (user.displayName == "") {
-                  name = "Вова";
-                } else {
-                  name = user.displayName;
-                }
-
+                UserInfo user = await fireBloc.getCurrentUser();
                 fireBloc.createGame({
                   'type': _type.indexOf(_currentItemSelectedType),
-                  'author': {'name': name, 'id': user.uid},
+                  'author': {
+                    'name': user.displayName ?? user.email,
+                    'id': user.uid
+                  },
                   'actualTime': _currentItemSelectedTime,
                   'comment': myController.text,
+                  'time': 0 - DateTime.now().millisecondsSinceEpoch
                 });
                 Navigator.pop(context);
               }
@@ -76,7 +72,6 @@ class CreatorState extends State<Creator> {
               );
             }).toList(),
             onChanged: (String newValueSelected) {
-              //Code to execute, when a menu item selected
               setState(() {
                 this._currentItemSelectedType = newValueSelected;
               });
