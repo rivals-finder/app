@@ -3,6 +3,7 @@ import './auth.dart';
 import './bloc/bloc.dart';
 import './suggestions.dart';
 import './news.dart';
+import './create.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.user}) : super(key: key);
@@ -75,7 +76,12 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Creator()),
+                );
+              },
               tooltip: 'Add',
               child: Icon(Icons.add),
             )
