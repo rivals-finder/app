@@ -65,6 +65,9 @@ class _SuggestionsState extends State<Suggestions> {
       case 3:
         return Icon(RivalsFinderIcons.ping_pong);
       break;
+      default:
+        return null;
+      break;
     }
   }
 
