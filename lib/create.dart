@@ -35,6 +35,32 @@ class CreatorState extends State<Creator> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Создание игры"),
+        actions: <Widget>[
+          IconButton(
+            icon: new Icon(Icons.check),
+            onPressed: () async {
+              if (_currentItemSelectedType != null &&
+                  _currentItemSelectedTime != null &&
+                  myController.text != null) {
+                var user = await fireBloc.getCurrentUser();
+                var name;
+                if (user.displayName == "") {
+                  name = "Вова";
+                } else {
+                  name = user.displayName;
+                }
+
+                fireBloc.createGame({
+                  'type': _type.indexOf(_currentItemSelectedType),
+                  'author': {'name': name, 'id': user.uid},
+                  'actualTime': _currentItemSelectedTime,
+                  'comment': myController.text,
+                });
+                Navigator.pop(context);
+              }
+            },
+          )
+        ],
       ),
       body: new Center(
           child: new Column(
@@ -87,35 +113,6 @@ class CreatorState extends State<Creator> {
               hintText: 'Комментарий',
             ),
             controller: myController,
-          ),
-          RaisedButton(
-            onPressed: () async {
-              if (_currentItemSelectedType != null &&
-                  _currentItemSelectedTime != null &&
-                  myController.text != null) {
-                var user = await fireBloc.getCurrentUser();
-                var name;
-                if (user.displayName == "") {
-                  name = "Вова";
-                } else {
-                  name = user.displayName;
-                }
-
-                fireBloc.createGame({
-                  'type': _type.indexOf(_currentItemSelectedType),
-                  'author': {'name': name, 'id': user.uid},
-                  'actualTime': _currentItemSelectedTime,
-                  'comment': myController.text,
-                });
-              }
-            },
-            child: Text('Создать'),
-          ),
-          RaisedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Назад'),
           ),
         ],
       )),
