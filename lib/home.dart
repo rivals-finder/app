@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import './auth.dart';
 import './bloc/bloc.dart';
+import './suggestions.dart';
+import './news.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.user}) : super(key: key);
@@ -13,6 +15,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   FireBloc fireBloc;
+
+  final List<Widget> _children = [
+    Suggestions(),
+    News(),
+  ];
 
   void initState() {
     super.initState();
@@ -54,7 +61,7 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-      body: Center(child: Text('Tensor Hack 2019')),
+      body: Center(child: _children[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
