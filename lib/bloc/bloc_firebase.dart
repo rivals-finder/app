@@ -7,8 +7,13 @@ class FireBloc extends BlocBase {
   FirebaseAuth faInstance = FirebaseAuth.instance;
   FirebaseDatabase databaseReference = FirebaseDatabase.instance;
 
+<<<<<<< HEAD
   getSuggestionsStream() {
     return databaseReference.reference().child('Suggestions').limitToFirst(10).onValue;
+=======
+ void createGame(map) {
+    databaseReference.reference().child("Suggestions").push().set(map);
+>>>>>>> 063f6f123e1a955ee2ab4201ce48e763872212e2
   }
 
   getTestList() async {
