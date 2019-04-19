@@ -1,28 +1,6 @@
 import 'package:flutter/material.dart';
 import './bloc/bloc.dart';
 
-class FirstRoute extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('First Route'),
-      ),
-      body: Center(
-        child: RaisedButton(
-          child: Text('Open route'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Creator()),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
 class Creator extends StatefulWidget {
   const Creator({Key key}) : super(key: key);
 
@@ -112,8 +90,6 @@ class CreatorState extends State<Creator> {
           ),
           RaisedButton(
             onPressed: () async {
-
-
               if (_currentItemSelectedType != null &&
                   _currentItemSelectedTime != null &&
                   myController.text != null) {
