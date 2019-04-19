@@ -4,6 +4,7 @@ import './suggestions.dart';
 import './news.dart';
 import './create.dart';
 import './settings.dart';
+import './chat.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.user}) : super(key: key);
@@ -35,6 +36,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _children = [
     Suggestions(),
     News(),
+    Chat(),
   ];
 
   void initState() {
@@ -95,6 +97,8 @@ class _HomeState extends State<Home> {
               icon: Icon(Icons.timer), title: Text('Предложения')),
           BottomNavigationBarItem(
               icon: Icon(Icons.new_releases), title: Text('Новости')),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.message), title: Text('Чат')),
         ],
         currentIndex: _selectedIndex,
         fixedColor: Colors.deepPurple,

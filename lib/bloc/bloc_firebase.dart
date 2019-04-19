@@ -21,6 +21,14 @@ class FireBloc extends BlocBase {
     await item.set(map);
   }
 
+  getChatStream() {
+    return databaseReference.reference().child('Chat').limitToLast(10).onValue;
+  }
+
+  void sendMessage(map) {
+    databaseReference.reference().child("Chat").push().set(map);
+  }
+
   getTestList() async {
     return new List(5);
   }
