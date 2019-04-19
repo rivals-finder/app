@@ -7,6 +7,10 @@ class FireBloc extends BlocBase {
   FirebaseAuth faInstance = FirebaseAuth.instance;
   FirebaseDatabase databaseReference = FirebaseDatabase.instance;
 
+  getSuggestionsStream() {
+    return databaseReference.reference().child('Suggestions').limitToFirst(10).onValue;
+  }
+
   getTestList() async {
     return new List(5);
   }
