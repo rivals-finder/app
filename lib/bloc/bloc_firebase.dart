@@ -50,7 +50,9 @@ class FireBloc extends BlocBase {
     UserUpdateInfo info = new UserUpdateInfo();
     info.displayName = newName;
     await user.updateProfile(info);
-    await user.updatePassword(newPass);
+    if (newPass.length >= 6) {
+      await user.updatePassword(newPass);
+    }
   }
 
   @override
