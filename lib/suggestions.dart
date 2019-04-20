@@ -35,21 +35,24 @@ class _SuggestionsState extends State<Suggestions> {
       body: StreamBuilder(
         stream: fireBloc.getSuggestionsStream(widget.filter),
         builder: (context, snapshot) {
-          if (!snapshot.hasData ||
-              (snapshot.hasData && snapshot.data.snapshot.value == null)) {
-            return Center(
-              child: Text("Активные предложения не найдены, создайте своё"),
-            );
+          if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
           } else {
-            List data = [];
-            Map _map;
-            _map = snapshot.data.snapshot.value;
-            _map.forEach((key, value) {
-              value.putIfAbsent('id', () => key);
-              data.add(value);
-            });
-            data.sort((c, n) => c['time'] - n['time']);
-            return _buildContent(data);
+            if (snapshot.data.snapshot.value == null) {
+              return Center(
+                child: Text("Активные предложения не найдены, создайте своё"),
+              );
+            } else {
+              List data = [];
+              Map _map;
+              _map = snapshot.data.snapshot.value;
+              _map.forEach((key, value) {
+                value.putIfAbsent('id', () => key);
+                data.add(value);
+              });
+              data.sort((c, n) => c['time'] - n['time']);
+              return _buildContent(data);
+            }
           }
         },
       ),
