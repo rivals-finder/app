@@ -25,7 +25,7 @@ class _NewsState extends State<News> {
 
   Future fetchPost() async {
     final response =
-        await http.get('https://perfect-rivals-finder.herokuapp.com/news/');
+        await http.get('https://perfect-rivals-finder.herokuapp.com/news/20');
 
     if (response.statusCode == 200) {
       print(List.from(json.decode(response.body)['items']));
