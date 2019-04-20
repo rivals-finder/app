@@ -145,6 +145,54 @@ class _NoticeState extends State<Notice> {
         title: Text(data['author']['name']),
         subtitle: Text('Откликнулся на \'${data['game']['comment']}\''),
         trailing: Text(data['date'].toString()),
+          onTap: () async {
+          int type;
+            showDialog(
+                context: context,
+              builder: (context){
+                  return AlertDialog(
+                    title: Text('Вы хотите принять или отклонить игру?'),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text('Принять'),
+                        onPressed: () {
+                          type = 1;
+
+                          fireBloc.createNotice(data['author']['id'], {
+                            'idGame': data['game']['id'],
+                            'type': type,
+                            'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+                            'date': DateTime.now().millisecondsSinceEpoch,
+                            'game': data['game'],
+                            'time': 0 - DateTime.now().millisecondsSinceEpoch,
+                          });
+                          Navigator.of(context).pop();
+                          fireBloc.deleteNotice(user.uid, data['id']);
+                        }
+                      ),
+                      FlatButton(
+                        child: Text('Отклонить'),
+                        onPressed: ()  {
+                          type = 3;
+
+                          fireBloc.createNotice(data['author']['id'], {
+                            'idGame': data['game']['id'],
+                            'type': type,
+                            'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+                            'date': DateTime.now().millisecondsSinceEpoch,
+                            'game': data['game'],
+                            'time': 0 - DateTime.now().millisecondsSinceEpoch,
+                          });
+                          Navigator.of(context).pop();
+                          fireBloc.deleteNotice(user.uid, data['id']);
+                        }
+                      ),
+                    ],
+
+                  );
+              }
+            );
+          }
       ),
     );
   }
@@ -168,6 +216,32 @@ class _NoticeState extends State<Notice> {
         leading: Icon(Icons.clear),
         title: Text(data['author']['name']),
         subtitle: Text('Отклонил игру \'${_games[data['game']['type']]}\''),
+          onTap: () async {
+            showDialog(
+                context: context,
+                builder: (context){
+                  return AlertDialog(
+                    title: Text('Вы хотите удалить уведомление?'),
+                    actions: <Widget>[
+                      FlatButton(
+                          child: Text('Ок'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            fireBloc.deleteNotice(user.uid, data['id']);
+                          }
+                      ),
+                      FlatButton(
+                          child: Text('Отмена'),
+                          onPressed: ()  {
+                            Navigator.of(context).pop();
+                          }
+                      ),
+                    ],
+
+                  );
+                }
+            );
+          }
       ),
     );
   }
@@ -192,6 +266,32 @@ class _NoticeState extends State<Notice> {
         leading: Icon(Icons.check),
         title: Text(data['author']['name']),
         subtitle: Text('Подтвердил игру в \'${_games[data['game']['type']]}\''),
+          onTap: () async {
+            showDialog(
+                context: context,
+                builder: (context){
+                  return AlertDialog(
+                    title: Text('Вы хотите удалить уведомление?'),
+                    actions: <Widget>[
+                      FlatButton(
+                          child: Text('Ок'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            fireBloc.deleteNotice(user.uid, data['id']);
+                          }
+                      ),
+                      FlatButton(
+                          child: Text('Отмена'),
+                          onPressed: ()  {
+                            Navigator.of(context).pop();
+                          }
+                      ),
+                    ],
+
+                  );
+                }
+            );
+          }
       ),
     );
   }
