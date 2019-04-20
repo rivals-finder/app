@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import './auth.dart';
 import './bloc/bloc.dart';
 import './suggestions.dart';
 import './news.dart';
 import './create.dart';
+import './settings.dart';
+import './chat.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.user}) : super(key: key);
@@ -13,29 +14,45 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
+class CustomPopupMenu {
+  CustomPopupMenu({this.title});
+
+  String title;
+}
+
+List<CustomPopupMenu> choices = <CustomPopupMenu>[
+  CustomPopupMenu(title: 'Все'),
+  CustomPopupMenu(title: 'Теннис'),
+  CustomPopupMenu(title: 'Бильярд'),
+  CustomPopupMenu(title: 'Кикер'),
+  CustomPopupMenu(title: 'Дартс'),
+];
+
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   FireBloc fireBloc;
+  CustomPopupMenu _selectedChoices = choices[0];
 
   final List<Widget> _children = [
     Suggestions(),
     News(),
+    Chat(),
   ];
 
   void initState() {
     super.initState();
     fireBloc = BlocProvider.of(context);
-    getList();
-  }
-
-  getList() async {
-    var q = await fireBloc.getTestList();
-    print(q);
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  void _select(CustomPopupMenu choice) {
+    setState(() {
+      _selectedChoices = choice;
     });
   }
 
@@ -51,15 +68,26 @@ class _HomeState extends State<Home> {
         ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: Icon(Icons.settings),
             onPressed: () async {
-              await fireBloc.logOut();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Auth()),
+                MaterialPageRoute(builder: (context) => Settings()),
               );
             },
-          )
+          ),
+          PopupMenuButton<CustomPopupMenu>(
+            initialValue: choices[choices.indexOf(_selectedChoices)],
+            onSelected: _select,
+            itemBuilder: (BuildContext context) {
+              return choices.map((CustomPopupMenu choice) {
+                return PopupMenuItem<CustomPopupMenu>(
+                  value: choice,
+                  child: Text(choice.title),
+                );
+              }).toList();
+            },
+          ),
         ],
       ),
       body: Center(child: _children[_selectedIndex]),
@@ -69,6 +97,8 @@ class _HomeState extends State<Home> {
               icon: Icon(Icons.timer), title: Text('Предложения')),
           BottomNavigationBarItem(
               icon: Icon(Icons.new_releases), title: Text('Новости')),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.message), title: Text('Чат')),
         ],
         currentIndex: _selectedIndex,
         fixedColor: Colors.deepPurple,
