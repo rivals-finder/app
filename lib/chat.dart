@@ -111,56 +111,9 @@ class _ChatState extends State<Chat> {
     }
   }
 
-  /*Widget _buildContent(data) {
-    double width = MediaQuery.of(context).size.width;
-    return ListView.builder(
-   //  padding: EdgeInsets.all(10.0),
-      itemCount: data.length,
-      itemBuilder: (context, key) {
-        return Dismissible(
-          key: Key(data[key]['id']),
-          direction: _changeDirection(data[key]['author']['id']),
-          confirmDismiss: (DismissDirection direction) async {
-            if (data[key]['author']['id'] != user.uid) {
-
-              return false;
-            } else {
-              return true;
-            }
-          },
-          onDismissed: (direction) {
-            Scaffold.of(context).showSnackBar(
-                SnackBar(content: Text("message deleted")));
-            fireBloc.deleteMessageChat(data[key]['id']);
-          },
-          background: Container(
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.all(16.0),
-              child: Icon(
-                Icons.delete,
-                color: Colors.white,
-              ),
-              color: Colors.red),
-              
-          child: SizedBox(
-            
-            width: width/2,
-            child: ListTile(
-              title: Text(data[key]['author']['name']),
-              subtitle: Text(data[key]['message'] ),
-              trailing: Text(data[key]['date']),
-              onTap: null,
-            ),
-          ),
-        );
-      },
-    );
-  }*/
-
   Widget _buildContent(data) {
     double width = MediaQuery.of(context).size.width;
     return ListView.builder(
-      //padding: EdgeInsets.all(10.0),
       itemCount: data.length,
       itemBuilder: (context, key) {
         return Dismissible(
@@ -179,25 +132,70 @@ class _ChatState extends State<Chat> {
             fireBloc.deleteMessageChat(data[key]['id']);
           },
           background: Container(
-              alignment: Alignment.centerRight,
+              alignment: Alignment.topRight,
               padding: const EdgeInsets.all(16.0),
               child: Icon(
                 Icons.delete,
-                color: Colors.white,
+                color: Colors.red,
               ),
-              color: Colors.red),
-             child:SizedBox(           
-            width: width,
-            child: ListTile(
-              title: Text(data[key]['author']['name']),
-              subtitle: Text(data[key]['message'] ),
-              trailing: Text(data[key]['date']),
-              onTap: null,
-            ),
-          
-          ),
+              color: Colors.white),
+          child: _messageModifier(data, key),
         );
       },
     );
+  }
+
+  Row _messageModifier(data, key) {
+    var timeSend = data[key]['date'];
+    if (data[key]['author']['id'] == user.uid) {
+      return new Row(
+        //my message
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              Container(
+                child: Text(data[key]['message']),
+                padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                width: 260.0,
+                decoration: new BoxDecoration(
+                    color: Color(0xFFBAC6DB),
+                    borderRadius: BorderRadius.circular(8.0)),
+                margin: EdgeInsets.only(bottom: 1.0, right: 10.0, top: 10.0),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 0.0, top: 5.0, bottom: 5.0),
+                child: Text("Я написал в " + timeSend),
+              )
+            ],
+          )
+        ],
+      );
+    } else {
+      return new Row(
+        // not my message
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              Container(
+                child: Text(data[key]['message']),
+                padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                width: 260.0,
+                decoration: new BoxDecoration(
+                    color: Color(0xff7c94b6),
+                    borderRadius: BorderRadius.circular(8.0)),
+                margin: EdgeInsets.only(bottom: 1.0, left: 10.0, top: 10.0),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 0.0, top: 5.0, bottom: 5.0),
+                child: Text(
+                    data[key]['author']['name'] + " написал в " + timeSend),
+              )
+            ],
+          ),
+        ],
+      );
+    }
   }
 }

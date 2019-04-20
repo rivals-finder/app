@@ -23,12 +23,12 @@ class _NewsState extends State<News> {
     if(url!="")
       launch(url);
     else
-      launch('https://google.com');
+      launch("https://google.com");
   }
 
   Future fetchPost() async {
     final response =
-    await http.get('https://perfect-rivals-finder.herokuapp.com/mock');
+    await http.get("https://perfect-rivals-finder.herokuapp.com/mock");
 
     if (response.statusCode == 200) {
       print(List.from(json.decode(response.body)['items']));
