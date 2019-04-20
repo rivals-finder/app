@@ -72,6 +72,7 @@ class _NoticeState extends State<Notice> {
                       value.putIfAbsent('id', () => key);
                       data.add(value);
                     });
+                    data.sort((c, n) => c['time'] - n['time']);
                     return ListView.builder(
                       itemCount: data.length,
                       itemBuilder: (context, key) {
@@ -192,6 +193,9 @@ class _NoticeState extends State<Notice> {
   }
 
   Dismissible _declineDismissible(data) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(data['date']);
+    var formatter = new DateFormat('Hm');
+    String formatted = formatter.format(date);
     return Dismissible(
       key: Key(data['id']),
       direction: DismissDirection.endToStart,
@@ -207,9 +211,14 @@ class _NoticeState extends State<Notice> {
           ),
           color: Colors.red),
       child: ListTile(
-          leading: Icon(Icons.clear),
+          leading: Icon(
+            Icons.clear,
+            size: 40,
+            color: Colors.red,
+          ),
           title: Text(data['author']['name']),
           subtitle: Text('Отклонил игру \'${_games[data['game']['type']]}\''),
+          trailing: Text(formatted),
           onTap: () async {
             showDialog(
                 context: context,
@@ -236,6 +245,9 @@ class _NoticeState extends State<Notice> {
   }
 
   Dismissible _allowDismissible(data) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(data['date']);
+    var formatter = new DateFormat('Hm');
+    String formatted = formatter.format(date);
     return Dismissible(
       key: Key(data['id']),
       direction: DismissDirection.endToStart,
@@ -251,8 +263,9 @@ class _NoticeState extends State<Notice> {
           ),
           color: Colors.red),
       child: ListTile(
-          leading: Icon(Icons.check),
+          leading: Icon(Icons.check, size: 40, color: Colors.green),
           title: Text(data['author']['name']),
+          trailing: Text(formatted),
           subtitle:
               Text('Подтвердил игру в \'${_games[data['game']['type']]}\''),
           onTap: () async {
