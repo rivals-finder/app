@@ -104,6 +104,7 @@ class _ChatState extends State<Chat> {
   }
 
   Widget forScroll(data, key) {
+    
     bool mine = data[key]['author']['id'] == user.uid;
     if (mine) {
       return Dismissible(
