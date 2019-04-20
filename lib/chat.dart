@@ -12,6 +12,7 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   FireBloc fireBloc;
+  FirebaseUser user;
 
   final myController = TextEditingController();
   String text;
@@ -24,6 +25,14 @@ class _ChatState extends State<Chat> {
       setState(() {
         text = myController.text;
       });
+    });
+    getCurrent();
+  }
+
+  getCurrent() async {
+    user = await fireBloc.getCurrentUser();
+    setState(() {
+      user = user;
     });
   }
 
@@ -46,6 +55,8 @@ class _ChatState extends State<Chat> {
                   Map _map;
                   _map = snapshot.data.snapshot.value;
                   _map.forEach((key, value) {
+                    value.putIfAbsent('id', () => key);
+
                     data.add(value);
                   });
                   data.sort((c, n) => n['time'] - c['time']);
@@ -91,20 +102,100 @@ class _ChatState extends State<Chat> {
     myController.clear();
   }
 
+  DismissDirection _changeDirection(id) {
+    bool mine = id == user.uid;
+    if (mine) {
+      return DismissDirection.endToStart;
+    } else {
+      return null;
+    }
+  }
+
   Widget _buildContent(data) {
     double width = MediaQuery.of(context).size.width;
     return ListView.builder(
       itemCount: data.length,
       itemBuilder: (context, key) {
-        return SizedBox(
-            width: width / 2,
-            child: ListTile(
-              title: Text(data[key]['author']['name']),
-              subtitle: Text(data[key]['message']),
-              trailing: Text(data[key]['date']),
-              onTap: null,
-            ));
+        return Dismissible(
+          key: Key(data[key]['id']),
+          direction: _changeDirection(data[key]['author']['id']),
+          confirmDismiss: (DismissDirection direction) async {
+            if (data[key]['author']['id'] != user.uid) {
+              return false;
+            } else {
+              return true;
+            }
+          },
+          onDismissed: (direction) {
+            Scaffold.of(context)
+                .showSnackBar(SnackBar(content: Text("message deleted")));
+            fireBloc.deleteMessageChat(data[key]['id']);
+          },
+          background: Container(
+              alignment: Alignment.topRight,
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
+              color: Colors.white),
+          child: _messageModifier(data, key),
+        );
       },
     );
+  }
+
+  Row _messageModifier(data, key) {
+    var timeSend = data[key]['date'];
+    if (data[key]['author']['id'] == user.uid) {
+      return new Row(
+        //my message
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              Container(
+                child: Text(data[key]['message']),
+                padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                width: 260.0,
+                decoration: new BoxDecoration(
+                    color: Color(0xFFBAC6DB),
+                    borderRadius: BorderRadius.circular(8.0)),
+                margin: EdgeInsets.only(bottom: 1.0, right: 10.0, top: 10.0),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 0.0, top: 5.0, bottom: 5.0),
+                child: Text("Я написал в " + timeSend),
+              )
+            ],
+          )
+        ],
+      );
+    } else {
+      return new Row(
+        // not my message
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              Container(
+                child: Text(data[key]['message']),
+                padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                width: 260.0,
+                decoration: new BoxDecoration(
+                    color: Color(0xff7c94b6),
+                    borderRadius: BorderRadius.circular(8.0)),
+                margin: EdgeInsets.only(bottom: 1.0, left: 10.0, top: 10.0),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 0.0, top: 5.0, bottom: 5.0),
+                child: Text(
+                    data[key]['author']['name'] + " написал в " + timeSend),
+              )
+            ],
+          ),
+        ],
+      );
+    }
   }
 }
