@@ -133,7 +133,7 @@ class _ChatState extends State<Chat> {
       );
     } else {
       return Container(
-        child: _messageModifier( data, key),
+        child: _messageModifier(data, key),
       );
     }
   }
