@@ -59,7 +59,7 @@ class _ChatState extends State<Chat> {
 
                     data.add(value);
                   });
-                  data.sort((c, n) => n['time'] - c['time']);
+                  data.sort((c, n) => c['time'] - n['time']);
                   return _buildContent(data);
                 }
               },
@@ -97,7 +97,7 @@ class _ChatState extends State<Chat> {
       'author': {'name': user.displayName ?? user.email, 'id': user.uid},
       'date': formatted,
       'message': myController.text,
-      'time': 0 - DateTime.now().millisecondsSinceEpoch,
+      'time': DateTime.now().millisecondsSinceEpoch,
     });
     myController.clear();
   }
@@ -165,7 +165,7 @@ class _ChatState extends State<Chat> {
               ),
               Container(
                 margin: EdgeInsets.only(left: 0.0, top: 5.0, bottom: 5.0),
-                child: Text("Я написал в " + timeSend),
+                child: Text("Я написал в " + timeSend.toString()),
               )
             ],
           )
@@ -189,8 +189,9 @@ class _ChatState extends State<Chat> {
               ),
               Container(
                 margin: EdgeInsets.only(left: 0.0, top: 5.0, bottom: 5.0),
-                child: Text(
-                    data[key]['author']['name'] + " написал в " + timeSend),
+                child: Text(data[key]['author']['name'] +
+                    " написал в " +
+                    timeSend.toString()),
               )
             ],
           ),
