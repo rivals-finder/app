@@ -110,18 +110,29 @@ class _SuggestionsState extends State<Suggestions> {
           direction: _changeDirection(data[position]['author']['id']),
           confirmDismiss: (DismissDirection direction) async {
             if (data[position]['author']['id'] != user.uid) {
+              fireBloc.createNotice(
+                data[position]['author']['id'],
+                {
+                  'idGame': data[position]['id'],
+                  'type': 2,// answer
+                  'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+                  'date': DateTime.now().millisecondsSinceEpoch,
+                  'game': data[position],
+                  'time': 0 - DateTime.now().millisecondsSinceEpoch,
+                }
+              ); // createNotice
               Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text("${data[position]['comment']} confirmed")));
               return false;
             } else {
               return true;
             }
-          },
+          }, // confirmDismiss
           onDismissed: (direction) {
             Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text("${data[position]['comment']} deleted")));
             fireBloc.deleteSuggestion(data[position]['id']);
-          },
+          }, // onDismissed
           background: Container(
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.all(16.0),
