@@ -125,7 +125,7 @@ class _SuggestionsState extends State<Suggestions> {
                     }
                   ); // createNotice
                   Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text("${data[position]['comment']} confirmed")));
+                      content: Text("Предложение \"${data[position]['comment']}\" принято")));
                   return false;
                 } else {
                   return true;
@@ -133,7 +133,7 @@ class _SuggestionsState extends State<Suggestions> {
               }, // confirmDismiss
               onDismissed: (direction) {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text("${data[position]['comment']} deleted")));
+                    content: Text("Предложение \"${data[position]['comment']}\" удалено")));
                 fireBloc.deleteSuggestion(data[position]['id']);
               }, // onDismissed
               background: Container(
@@ -182,6 +182,8 @@ class _SuggestionsState extends State<Suggestions> {
                               if (data[position]['author']['id'] == user.uid) {
                                 fireBloc.deleteSuggestion(data[position]['id']);
                                 Navigator.of(context).pop();
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text("Предложение \"${data[position]['comment']}\" удалено")));
                               } else {
                                 fireBloc.createNotice(
                                   data[position]['author']['id'],
@@ -195,6 +197,8 @@ class _SuggestionsState extends State<Suggestions> {
                                   }
                                 );
                                 Navigator.of(context).pop();
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text("Предложение \"${data[position]['comment']}\" принято")));
                               }
                             }, // onPressed
                           ),
