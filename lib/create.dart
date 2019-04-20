@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './bloc/bloc.dart';
+import './Icons/rivals_finder_icons.dart';
 
 class Creator extends StatefulWidget {
   const Creator({Key key}) : super(key: key);
@@ -37,80 +38,187 @@ class CreatorState extends State<Creator> {
         actions: <Widget>[
           IconButton(
             icon: new Icon(Icons.check),
-            onPressed: () async {
-              if (_currentItemSelectedType != null &&
-                  _currentItemSelectedTime != null &&
-                  myController.text != null) {
-                UserInfo user = await fireBloc.getCurrentUser();
-                fireBloc.createGame({
-                  'type': _type.indexOf(_currentItemSelectedType),
-                  'author': {
-                    'name': user.displayName ?? user.email,
-                    'id': user.uid
-                  },
-                  'actualTime': _currentItemSelectedTime,
-                  'comment': myController.text,
-                  'time': 0 - DateTime.now().millisecondsSinceEpoch
-                });
-                Navigator.pop(context);
-              }
+            onPressed: () {
+              sendDataMethod();
             },
           )
         ],
       ),
       body: new Center(
-          child: new Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          DropdownButton<String>(
-            isExpanded: true,
-            hint: Text('Выбрать игру'),
-            items: _type.map((String dropDownSringItem) {
-              return DropdownMenuItem<String>(
-                value: dropDownSringItem,
-                child: Text(dropDownSringItem),
-              );
-            }).toList(),
-            onChanged: (String newValueSelected) {
-              setState(() {
-                this._currentItemSelectedType = newValueSelected;
-              });
-            },
-            style: new TextStyle(
-              color: Colors.black,
-              fontSize: 18.0,
-            ),
-            value: _currentItemSelectedType,
-          ),
-          DropdownButton<String>(
-            isExpanded: true,
-            hint: Text('Продолжительность заявки'),
-            items: _actualTime.map((String dropDownSringItem1) {
-              return DropdownMenuItem<String>(
-                value: dropDownSringItem1,
-                child: Text(dropDownSringItem1),
-              );
-            }).toList(),
-            onChanged: (String newValueSelected1) {
-              //Code to execute, when a menu item selected
-              setState(() {
-                this._currentItemSelectedTime = newValueSelected1;
-              });
-            },
-            style: new TextStyle(
-              color: Colors.black,
-              fontSize: 18.0,
-            ),
-            value: _currentItemSelectedTime,
-          ),
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Комментарий',
-            ),
-            controller: myController,
-          ),
-        ],
-      )),
+        child: new SizedBox(
+            width: 380.0,
+            height: 580.0,
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              //-----------------------------------------------------
+              children: <Widget>[
+                Container(
+                  child: ButtonTheme(
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      hint: Text('Выбрать игру'),
+                      items: _type.map((String dropDownSringItem) {
+                        return DropdownMenuItem<String>(
+                          value: dropDownSringItem,
+                          child: new Container(
+                              child: new Row(
+                            children: <Widget>[
+                              _getIconFromName(dropDownSringItem),
+                              new Container(
+                                width: 20.0,
+                              ),
+                              Text(dropDownSringItem),
+                            ],
+                          )),
+                        );
+                      }).toList(),
+                      onChanged: (String newValueSelected) {
+                        setState(() {
+                          this._currentItemSelectedType = newValueSelected;
+                        });
+                      },
+                      style: new TextStyle(
+                        color: Colors.black,
+                        fontSize: 18.0,
+                      ),
+                      value: _currentItemSelectedType,
+                    ),
+                  ),
+                ),
+                //----------------------
+                DropdownButton<String>(
+                  isExpanded: true,
+                  hint: Text('Продолжительность заявки'),
+                  items: _actualTime.map((String dropDownSringItem1) {
+                    return DropdownMenuItem<String>(
+                      value: dropDownSringItem1,
+                      child: new Row(
+                        children: <Widget>[
+                          Text(dropDownSringItem1),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String newValueSelected1) {
+                    setState(() {
+                      this._currentItemSelectedTime = newValueSelected1;
+                    });
+                  },
+                  style: new TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                  ),
+                  value: _currentItemSelectedTime,
+                ),
+
+                TextField(
+                  style: new TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Комментарий',
+                  ),
+                  controller: myController,
+                ),
+              ],
+              //-----------------------------------------------------
+            )),
+      ),
     );
+  }
+
+  Icon _getIconFromName(name) {
+    switch (name) {
+      case 'Теннис':
+        return Icon(RivalsFinderIcons.ping_pong);
+        break;
+      case 'Бильярд':
+        return Icon(RivalsFinderIcons.billiard);
+        break;
+      case 'Кикер':
+        return Icon(RivalsFinderIcons.kicker);
+        break;
+      case 'Дартс':
+        return Icon(RivalsFinderIcons.darts);
+        break;
+    }
+  }
+
+  showAlertDialog(BuildContext context) {
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    AlertDialog alert = AlertDialog(
+      title: Text("Ошибка"),
+      content: Text("Не все поля заполнены."),
+      actions: [
+        okButton,
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  sendDataMethod() async {
+    if (_currentItemSelectedType != null &&
+        _currentItemSelectedTime != null &&
+        myController.text != null) {
+      UserInfo user = await fireBloc.getCurrentUser();
+      fireBloc.createGame({
+        'type': _type.indexOf(_currentItemSelectedType),
+        'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+        'actualTime': _getDateFromSelectedName(_currentItemSelectedTime),
+        'comment': myController.text,
+        'time': 0 - DateTime.now().millisecondsSinceEpoch
+      });
+      Navigator.pop(context);
+    } else {
+      showAlertDialog(context);
+    }
+  }
+
+  int _getDateFromSelectedName(name) {
+    switch (name) {
+      case '1 час':
+        return DateTime.fromMillisecondsSinceEpoch(
+                DateTime.now().millisecondsSinceEpoch,
+                isUtc: true)
+            .add(new Duration(hours: 1))
+            .toUtc()
+            .millisecondsSinceEpoch;
+        break;
+      case '2 часа':
+        return DateTime.fromMillisecondsSinceEpoch(
+                DateTime.now().millisecondsSinceEpoch,
+                isUtc: true)
+            .add(new Duration(hours: 2))
+            .toUtc()
+            .millisecondsSinceEpoch;
+        break;
+      case '1 день':
+        return DateTime.fromMillisecondsSinceEpoch(
+                DateTime.now().millisecondsSinceEpoch,
+                isUtc: true)
+            .add(new Duration(days: 1))
+            .toUtc()
+            .millisecondsSinceEpoch;
+        break;
+      case '1 неделя':
+        return DateTime.fromMillisecondsSinceEpoch(
+                DateTime.now().millisecondsSinceEpoch,
+                isUtc: true)
+            .add(new Duration(days: 7))
+            .toUtc()
+            .millisecondsSinceEpoch;
+        break;
+    }
   }
 }
