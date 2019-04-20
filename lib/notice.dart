@@ -30,15 +30,23 @@ class _NoticeState extends State<Notice> {
       'idGame': 'id',
       'type': 0,
       'author': {'name': user.displayName ?? user.email, 'id': user.uid},
-      'date': DateTime.now().millisecondsSinceEpoch,
+      'date': DateTime
+          .now()
+          .millisecondsSinceEpoch,
       'game': {
         'type': 1,
         'author': {'name': 'test', 'id': 'id'},
-        'actualTime': DateTime.now().millisecondsSinceEpoch,
+        'actualTime': DateTime
+            .now()
+            .millisecondsSinceEpoch,
         'comment': 'Go igrat',
-        'time': 0 - DateTime.now().millisecondsSinceEpoch
+        'time': 0 - DateTime
+            .now()
+            .millisecondsSinceEpoch
       },
-      'time': 0 - DateTime.now().millisecondsSinceEpoch,
+      'time': 0 - DateTime
+          .now()
+          .millisecondsSinceEpoch,
     });
   }
 
@@ -55,32 +63,33 @@ class _NoticeState extends State<Notice> {
       appBar: AppBar(title: Text('Notice'), centerTitle: true),
       body: user != null
           ? StreamBuilder(
-              stream: fireBloc.getNoticeStream(user.uid),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData ||
-                    (snapshot.hasData &&
-                        snapshot.data.snapshot.value == null)) {
-                  return Center( child: Text('Уведомлений нет') );
-                } else {
-                  List data = [];
-                  Map _map;
-                  _map = snapshot.data.snapshot.value;
-                  _map.forEach((key, value) {
-                    value.putIfAbsent('id', () => key);
-                    data.add(value);
-                  });
-                  return ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, key) {
-                      return _answerDismissible(data[key]);
-                    },
-                  );
-                }
+        stream: fireBloc.getNoticeStream(user.uid),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData ||
+              (snapshot.hasData &&
+                  snapshot.data.snapshot.value == null)) {
+            return Center(child: Text('Уведомлений нет'));
+          } else {
+            List data = [];
+            Map _map;
+            _map = snapshot.data.snapshot.value;
+            _map.forEach((key, value) {
+              value.putIfAbsent('id', () => key);
+              data.add(value);
+            });
+            return ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, key) {
+                return _answerDismissible(data[key]);
               },
-            )
+            );
+          }
+        },
+      )
           : CircularProgressIndicator(),
     );
   }
+
 
   Dismissible _answerDismissible(data) {
     return Dismissible(
@@ -114,4 +123,56 @@ class _NoticeState extends State<Notice> {
       ),
     );
   }
+
+  Dismissible _declineDismissible(data) {
+    return Dismissible(
+      key: Key(data['id']),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        createNotice(user.uid, {});
+        Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text("${data['text']} dismissed")));
+      },
+      background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.clear,
+            color: Colors.white,
+          ),
+          color: Colors.red),
+      child: ListTile(
+        leading: Icon(Icons.phone),
+        title: Text(data['author']['name']),
+        subtitle: Text('Подтвердил игру \'${data['game']['type']}\''),
+      ),
+    );
+  }
+
+
+  Dismissible _allowDismissible(data) {
+    return Dismissible(
+      key: Key(data['id']),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        createNotice(user.uid, {});
+        Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text("${data['text']} dismissed")));
+      },
+      background: Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
+          color: Colors.green),
+      child: ListTile(
+        leading: Icon(Icons.phone),
+        title: Text(data['author']['name']),
+        subtitle: Text('Отклонил игру в \'${data['game']['type']}\''),
+      ),
+    );
+  }
+
 }
