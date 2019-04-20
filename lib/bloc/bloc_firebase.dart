@@ -7,11 +7,15 @@ class FireBloc extends BlocBase {
   FirebaseAuth faInstance = FirebaseAuth.instance;
   FirebaseDatabase databaseReference = FirebaseDatabase.instance;
 
+  deleteSuggestion(suggestionUid) async {
+    databaseReference.reference().child('Suggestions').child(suggestionUid).remove();
+  }
+
   getSuggestionsStream(type) {
     var values =  databaseReference
         .reference()
         .child('Suggestions');
-    // TODO: сделать с orderByChild('time)
+    // TODO: сделать с orderByChild('time')
     return type >= 0 
       ? values
         .orderByChild('type')

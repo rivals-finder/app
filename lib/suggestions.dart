@@ -110,15 +110,15 @@ class _SuggestionsState extends State<Suggestions> {
             if (data[position]['author']['id'] != user.uid) {
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text("${data[position]['comment']} confirmed")));
+              return false;
             } else {
-              Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text("${data[position]['comment']} deleted")));
+              return true;
             }
-            return false;
           },
           onDismissed: (direction) {
             Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text("${data[position]['comment']} deleted")));
+              content: Text("${data[position]['comment']} deleted")));
+            fireBloc.deleteSuggestion(data[position]['id']);
           },
           background: Container(
               alignment: Alignment.centerLeft,
