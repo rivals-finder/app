@@ -10,62 +10,19 @@ class Notice extends StatefulWidget {
 
 class _NoticeState extends State<Notice> {
   FireBloc fireBloc;
+  FirebaseUser user;
 
   void initState() {
     super.initState();
     fireBloc = BlocProvider.of(context);
     getList();
+    getCurrent();
   }
 
   getList() async {
     var q = await fireBloc.getTestList();
     print(q);
   }
-
-  final List<Map> _items = [
-    {
-      'id': 1,
-      'name': 'Petr',
-      'type': 0,
-      'text': 'Tralalala',
-      'date': '02.02.2017',
-    },
-    {
-      'id': 2,
-      'name': 'Anna',
-      'type': 0,
-      'text': 'asfafa',
-      'date': '20.04.2017',
-    },
-    {
-      'id': 3,
-      'name': 'Dasha',
-      'type': 0,
-      'text': 'hjl',
-      'date': '07.12.2017',
-    },
-    {
-      'id': 4,
-      'name': 'Vlad',
-      'type': 0,
-      'text': 'iopui',
-      'date': '04.01.2018',
-    },
-    {
-      'id': 5,
-      'name': 'Maks',
-      'type': 0,
-      'text': 'zxgxfdf',
-      'date': '13.02.2018',
-    },
-    {
-      'id': 6,
-      'name': 'Sasha',
-      'type': 0,
-      'text': 'qgfdb',
-      'date': '18.06.2018',
-    }
-  ];
 
   createNotice(uid, map) async {
     UserInfo user = await fireBloc.getCurrentUser();
@@ -85,46 +42,72 @@ class _NoticeState extends State<Notice> {
     });
   }
 
+  getCurrent() async {
+    user = await fireBloc.getCurrentUser();
+    setState(() {
+      user = user;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
+    return Scaffold(
       appBar: AppBar(title: Text('Notice'), centerTitle: true),
-      body: ListView.builder(
-        itemCount: _items.length,
-        itemBuilder: (context, key) {
-          return Dismissible(
-            key: Key(_items[key]['name']),
-            onDismissed: (direction) {
-              createNotice('5', {});
-              Scaffold.of(context).showSnackBar(
-                  SnackBar(content: Text("${_items[key]['text']} dismissed")));
-            },
-            background: Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.all(16.0),
-                child: Icon(
-                  Icons.check,
-                  color: Colors.white,
-                ),
-                color: Colors.green),
-            secondaryBackground: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.all(16.0),
-                child: Icon(
-                  Icons.clear,
-                  color: Colors.white,
-                ),
-                color: Colors.red),
-            child: ListTile(
-              leading: Icon(Icons.phone),
-              title: Text(_items[key]['text']),
-              subtitle: Text(_items[key]['name']),
-              trailing: Text(_items[key]['date']),
-            ),
-          );
-        },
-      ),
-    ));
+      body: user != null
+          ? StreamBuilder(
+              stream: fireBloc.getNoticeStream(user.uid),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData ||
+                    (snapshot.hasData &&
+                        snapshot.data.snapshot.value == null)) {
+                  return Text('Empty');
+                } else {
+                  List data = [];
+                  Map _map;
+                  _map = snapshot.data.snapshot.value;
+                  _map.forEach((key, value) {
+                    value.putIfAbsent('id', () => key);
+                    data.add(value);
+                  });
+                  return ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, key) {
+                      return Dismissible(
+                        key: Key(data[key]['id']),
+                        onDismissed: (direction) {
+                          createNotice(user.uid, {});
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text("${data[key]['text']} dismissed")));
+                        },
+                        background: Container(
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.all(16.0),
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                            ),
+                            color: Colors.green),
+                        secondaryBackground: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.all(16.0),
+                            child: Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                            color: Colors.red),
+                        child: ListTile(
+                          leading: Icon(Icons.phone),
+                          title: Text(data[key]['game']['comment']),
+                          subtitle: Text(data[key]['author']['name']),
+                          trailing: Text(data[key]['date'].toString()),
+                        ),
+                      );
+                    },
+                  );
+                }
+              },
+            )
+          : CircularProgressIndicator(),
+    );
   }
 }

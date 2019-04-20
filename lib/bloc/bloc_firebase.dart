@@ -46,6 +46,10 @@ class FireBloc extends BlocBase {
     await item.set(map);
   }
 
+  getNoticeStream(uid) {
+    return databaseReference.reference().child("Notice/" + uid).limitToLast(10).onValue;
+  }
+
   getTestList() async {
     return new List(5);
   }
