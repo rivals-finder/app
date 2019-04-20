@@ -28,6 +28,11 @@ class FireBloc extends BlocBase {
         .onValue;        
   }
 
+  deleteMessageChat(messageUid) async {
+    databaseReference.reference().child('Chat').child(messageUid).remove();
+  }
+
+
   void createGame(map) async {
     var item = databaseReference.reference().child("Suggestions").push();
     await item.set(map);

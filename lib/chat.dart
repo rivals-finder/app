@@ -12,6 +12,7 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   FireBloc fireBloc;
+  FirebaseUser user;
 
   final myController = TextEditingController();
   String text;
@@ -24,6 +25,14 @@ class _ChatState extends State<Chat> {
       setState(() {
         text = myController.text;
       });
+    });
+    getCurrent();
+  }
+
+  getCurrent() async {
+    user = await fireBloc.getCurrentUser();
+    setState(() {
+      user = user;
     });
   }
 
@@ -46,6 +55,8 @@ class _ChatState extends State<Chat> {
                   Map _map;
                   _map = snapshot.data.snapshot.value;
                   _map.forEach((key, value) {
+                    value.putIfAbsent('id', () => key);
+
                     data.add(value);
                   });
                   data.sort((c, n) => n['time'] - c['time']);
@@ -91,19 +102,101 @@ class _ChatState extends State<Chat> {
     myController.clear();
   }
 
+  DismissDirection _changeDirection(id) {
+    bool mine = id == user.uid;
+    if (mine) {
+      return DismissDirection.endToStart;
+    } else {
+      return null;
+    }
+  }
+
+  /*Widget _buildContent(data) {
+    double width = MediaQuery.of(context).size.width;
+    return ListView.builder(
+   //  padding: EdgeInsets.all(10.0),
+      itemCount: data.length,
+      itemBuilder: (context, key) {
+        return Dismissible(
+          key: Key(data[key]['id']),
+          direction: _changeDirection(data[key]['author']['id']),
+          confirmDismiss: (DismissDirection direction) async {
+            if (data[key]['author']['id'] != user.uid) {
+
+              return false;
+            } else {
+              return true;
+            }
+          },
+          onDismissed: (direction) {
+            Scaffold.of(context).showSnackBar(
+                SnackBar(content: Text("message deleted")));
+            fireBloc.deleteMessageChat(data[key]['id']);
+          },
+          background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+              ),
+              color: Colors.red),
+              
+          child: SizedBox(
+            
+            width: width/2,
+            child: ListTile(
+              title: Text(data[key]['author']['name']),
+              subtitle: Text(data[key]['message'] ),
+              trailing: Text(data[key]['date']),
+              onTap: null,
+            ),
+          ),
+        );
+      },
+    );
+  }*/
+
   Widget _buildContent(data) {
     double width = MediaQuery.of(context).size.width;
     return ListView.builder(
+      //padding: EdgeInsets.all(10.0),
       itemCount: data.length,
       itemBuilder: (context, key) {
-        return SizedBox(
-            width: width / 2,
+        return Dismissible(
+          key: Key(data[key]['id']),
+          direction: _changeDirection(data[key]['author']['id']),
+          confirmDismiss: (DismissDirection direction) async {
+            if (data[key]['author']['id'] != user.uid) {
+              return false;
+            } else {
+              return true;
+            }
+          },
+          onDismissed: (direction) {
+            Scaffold.of(context)
+                .showSnackBar(SnackBar(content: Text("message deleted")));
+            fireBloc.deleteMessageChat(data[key]['id']);
+          },
+          background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+              ),
+              color: Colors.red),
+             child:SizedBox(           
+            width: width,
             child: ListTile(
               title: Text(data[key]['author']['name']),
-              subtitle: Text(data[key]['message']),
+              subtitle: Text(data[key]['message'] ),
               trailing: Text(data[key]['date']),
               onTap: null,
-            ));
+            ),
+          
+          ),
+        );
       },
     );
   }
