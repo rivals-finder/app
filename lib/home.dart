@@ -5,6 +5,7 @@ import './news.dart';
 import './create.dart';
 import './settings.dart';
 import './chat.dart';
+import './notice.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.user}) : super(key: key);
@@ -66,7 +67,12 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.person),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Notice()),
+            );
+          },
         ),
         actions: <Widget>[
           IconButton(
