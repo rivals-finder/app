@@ -37,20 +37,18 @@ class CreatorState extends State<Creator> {
         title: Text("Создание игры"),
         actions: <Widget>[
           IconButton(
-            icon: new Icon(Icons.check),
+            icon: Icon(Icons.check),
             onPressed: () {
               sendDataMethod();
             },
           )
         ],
       ),
-      body: new Center(
-        child: new SizedBox(
-            width: 380.0,
-            height: 580.0,
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              //-----------------------------------------------------
+      body: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
               children: <Widget>[
                 Container(
                   child: ButtonTheme(
@@ -60,11 +58,11 @@ class CreatorState extends State<Creator> {
                       items: _type.map((String dropDownSringItem) {
                         return DropdownMenuItem<String>(
                           value: dropDownSringItem,
-                          child: new Container(
-                              child: new Row(
+                          child: Container(
+                              child: Row(
                             children: <Widget>[
                               _getIconFromName(dropDownSringItem),
-                              new Container(
+                              Container(
                                 width: 20.0,
                               ),
                               Text(dropDownSringItem),
@@ -77,7 +75,7 @@ class CreatorState extends State<Creator> {
                           this._currentItemSelectedType = newValueSelected;
                         });
                       },
-                      style: new TextStyle(
+                      style: TextStyle(
                         color: Colors.black,
                         fontSize: 18.0,
                       ),
@@ -92,7 +90,7 @@ class CreatorState extends State<Creator> {
                   items: _actualTime.map((String dropDownSringItem1) {
                     return DropdownMenuItem<String>(
                       value: dropDownSringItem1,
-                      child: new Row(
+                      child: Row(
                         children: <Widget>[
                           Text(dropDownSringItem1),
                         ],
@@ -104,7 +102,7 @@ class CreatorState extends State<Creator> {
                       this._currentItemSelectedTime = newValueSelected1;
                     });
                   },
-                  style: new TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
                     fontSize: 18.0,
                   ),
@@ -112,7 +110,7 @@ class CreatorState extends State<Creator> {
                 ),
 
                 TextField(
-                  style: new TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
                     fontSize: 18.0,
                   ),
@@ -191,7 +189,7 @@ class CreatorState extends State<Creator> {
         return DateTime.fromMillisecondsSinceEpoch(
                 DateTime.now().millisecondsSinceEpoch,
                 isUtc: true)
-            .add(new Duration(hours: 1))
+            .add(Duration(hours: 1))
             .toUtc()
             .millisecondsSinceEpoch;
         break;
@@ -199,7 +197,7 @@ class CreatorState extends State<Creator> {
         return DateTime.fromMillisecondsSinceEpoch(
                 DateTime.now().millisecondsSinceEpoch,
                 isUtc: true)
-            .add(new Duration(hours: 2))
+            .add(Duration(hours: 2))
             .toUtc()
             .millisecondsSinceEpoch;
         break;
@@ -207,7 +205,7 @@ class CreatorState extends State<Creator> {
         return DateTime.fromMillisecondsSinceEpoch(
                 DateTime.now().millisecondsSinceEpoch,
                 isUtc: true)
-            .add(new Duration(days: 1))
+            .add(Duration(days: 1))
             .toUtc()
             .millisecondsSinceEpoch;
         break;
@@ -215,7 +213,7 @@ class CreatorState extends State<Creator> {
         return DateTime.fromMillisecondsSinceEpoch(
                 DateTime.now().millisecondsSinceEpoch,
                 isUtc: true)
-            .add(new Duration(days: 7))
+            .add(Duration(days: 7))
             .toUtc()
             .millisecondsSinceEpoch;
         break;
