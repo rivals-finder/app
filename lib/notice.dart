@@ -158,7 +158,7 @@ class _NoticeState extends State<Notice> {
           ),
           color: Colors.red),
       child: ListTile(
-        leading: Icon(Icons.phone),
+        leading: Icon(Icons.clear),
         title: Text(data['author']['name']),
         subtitle: Text('Отклонил игру \'${data['game']['type']}\''),
       ),
@@ -182,7 +182,7 @@ class _NoticeState extends State<Notice> {
           ),
           color: Colors.red),
       child: ListTile(
-        leading: Icon(Icons.phone),
+        leading: Icon(Icons.check),
         title: Text(data['author']['name']),
         subtitle: Text('Подтвердил игру в \'${data['game']['type']}\''),
       ),
