@@ -106,17 +106,18 @@ class _NoticeState extends State<Notice> {
     return Dismissible(
       key: Key(data['id']),
       onDismissed: (direction) {
-        createNotice(user.uid, {});
         Scaffold.of(context).showSnackBar(SnackBar(
             content: Text("${data['text']} dismissed")));
-        createNotice(data['author']['id'], {
+        int type = direction == DismissDirection.startToEnd ? 1 : 3;
+        fireBloc.createNotice(data['author']['id'], {
           'idGame': data['game']['id'],
-          'type': 2,// answer
+          'type': type,// answer
           'author': {'name': user.displayName ?? user.email, 'id': user.uid},
           'date': DateTime.now().millisecondsSinceEpoch,
           'game': data['game'],
           'time': 0 - DateTime.now().millisecondsSinceEpoch,
         });
+        fireBloc.deleteNotice(data['id']);
       },
       background: Container(
           alignment: Alignment.centerLeft,
