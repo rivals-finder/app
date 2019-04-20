@@ -109,6 +109,14 @@ class _NoticeState extends State<Notice> {
         createNotice(user.uid, {});
         Scaffold.of(context).showSnackBar(SnackBar(
             content: Text("${data['text']} dismissed")));
+        createNotice(data['author']['id'], {
+          'idGame': data['game']['id'],
+          'type': 2,// answer
+          'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+          'date': DateTime.now().millisecondsSinceEpoch,
+          'game': data['game'],
+          'time': 0 - DateTime.now().millisecondsSinceEpoch,
+        });
       },
       background: Container(
           alignment: Alignment.centerLeft,
