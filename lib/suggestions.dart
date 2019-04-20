@@ -36,7 +36,7 @@ class _SuggestionsState extends State<Suggestions> {
         stream: fireBloc.getSuggestionsStream(widget.filter),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           } else {
             if (snapshot.data.snapshot.value == null) {
               return Center(
@@ -74,24 +74,28 @@ class _SuggestionsState extends State<Suggestions> {
         return Icon(
           RivalsFinderIcons.ping_pong,
           color: Colors.black,
+          size: 40,
         );
         break;
       case 1:
         return Icon(
           RivalsFinderIcons.billiard,
           color: Colors.black,
+          size: 40,
         );
         break;
       case 2:
         return Icon(
           RivalsFinderIcons.kicker,
           color: Colors.black,
+          size: 40,
         );
         break;
       case 3:
         return Icon(
           RivalsFinderIcons.darts,
           color: Colors.black,
+          size: 40,
         );
         break;
       default:
@@ -104,111 +108,125 @@ class _SuggestionsState extends State<Suggestions> {
     return ListView.builder(
       itemCount: data.length,
       itemBuilder: (context, position) {
+        bool withoutComment = data[position]['comment'] == "";
         DateTime date =
             DateTime.fromMillisecondsSinceEpoch(data[position]['actualTime']);
+        bool notToday = date.day > DateTime.now().day;
         var formatter = new DateFormat('Hm');
-        String formatted = 'актуально до ' + formatter.format(date);
-            return Dismissible(
-              key: Key(data[position]['id']),
-              direction: _changeDirection(data[position]['author']['id']),
-              confirmDismiss: (DismissDirection direction) async {
-                if (data[position]['author']['id'] != user.uid) {
-                  fireBloc.createNotice(
-                    data[position]['author']['id'],
-                    {
-                      'idGame': data[position]['id'],
-                      'type': 2,// answer
-                      'author': {'name': user.displayName ?? user.email, 'id': user.uid},
-                      'date': DateTime.now().millisecondsSinceEpoch,
-                      'game': data[position],
-                      'time': 0 - DateTime.now().millisecondsSinceEpoch,
-                    }
-                  ); // createNotice
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text("Предложение \"${data[position]['comment']}\" принято")));
-                  return false;
-                } else {
-                  return true;
-                }
-              }, // confirmDismiss
-              onDismissed: (direction) {
-                Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text("Предложение \"${data[position]['comment']}\" удалено")));
-                fireBloc.deleteSuggestion(data[position]['id']);
-              }, // onDismissed
-              background: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.all(16.0),
-                  child: Icon(
-                    Icons.check,
-                    color: Colors.white,
-                  ),
-                  color: Colors.green),
-              secondaryBackground: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.all(16.0),
-                  child: Icon(
-                    Icons.clear,
-                    color: Colors.white,
-                  ),
-                  color: Colors.red),
-              child: ListTile(
-                leading: _getIconFromId(data[position]['type']),
-                title: Text(data[position]['comment']),
-                subtitle: Text('${data[position]['author']['name']}'),
-                trailing: Text(formatted),
-                onTap: () async {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text(
-                          data[position]['author']['id'] == user.uid ?
-                          'Вы хотите удалить предложение?' : 'Вы хотите принять предложение?'
-                        ),
-                        actions: <Widget>[
-                          FlatButton(
-                            child: Text('Закрыть'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          FlatButton(
-                            child: Text(
-                              data[position]['author']['id'] == user.uid ?
-                                'Удалить' : 'Принять'
-                            ),
-                            onPressed: () {
-                              if (data[position]['author']['id'] == user.uid) {
-                                fireBloc.deleteSuggestion(data[position]['id']);
-                                Navigator.of(context).pop();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text("Предложение \"${data[position]['comment']}\" удалено")));
-                              } else {
-                                fireBloc.createNotice(
-                                  data[position]['author']['id'],
-                                  {
-                                    'idGame': data[position]['id'],
-                                    'type': 2,// answer
-                                    'author': {'name': user.displayName ?? user.email, 'id': user.uid},
-                                    'date': DateTime.now().millisecondsSinceEpoch,
-                                    'game': data[position],
-                                    'time': 0 - DateTime.now().millisecondsSinceEpoch,
-                                  }
-                                );
-                                Navigator.of(context).pop();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text("Предложение \"${data[position]['comment']}\" принято")));
-                              }
-                            }, // onPressed
-                          ),
-                        ],
-                      );
-                    }
-                  );
+        var formatterDate = new DateFormat('d.MM');
+        String formatted = 'до ' + formatter.format(date);
+        String formattedDate = 'до ' + formatterDate.format(date);
+        return Dismissible(
+          key: Key(data[position]['id']),
+          direction: _changeDirection(data[position]['author']['id']),
+          confirmDismiss: (DismissDirection direction) async {
+            if (data[position]['author']['id'] != user.uid) {
+              fireBloc.createNotice(data[position]['author']['id'], {
+                'idGame': data[position]['id'],
+                'type': 2, // answer
+                'author': {
+                  'name': user.displayName ?? user.email,
+                  'id': user.uid
                 },
+                'date': DateTime.now().millisecondsSinceEpoch,
+                'game': data[position],
+                'time': 0 - DateTime.now().millisecondsSinceEpoch,
+              });
+              Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                      "Предложение \"${data[position]['comment']}\" принято")));
+              return false;
+            } else {
+              return true;
+            }
+          },
+          onDismissed: (direction) {
+            Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    "Предложение \"${data[position]['comment']}\" удалено")));
+            fireBloc.deleteSuggestion(data[position]['id']);
+          },
+          background: Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.check,
+                color: Colors.white,
               ),
-            );
+              color: Colors.green),
+          secondaryBackground: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.clear,
+                color: Colors.white,
+              ),
+              color: Colors.red),
+          child: ListTile(
+            leading: _getIconFromId(data[position]['type']),
+            title: Text(
+              withoutComment
+                  ? 'Комментарий остутствует'
+                  : data[position]['comment'],
+              style: withoutComment
+                  ? TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)
+                  : null,
+            ),
+            subtitle: Text('${data[position]['author']['name']}'),
+            trailing: Text(notToday ? formattedDate : formatted),
+            onTap: () async {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text(data[position]['author']['id'] == user.uid
+                          ? 'Вы хотите удалить предложение?'
+                          : 'Вы хотите принять предложение?'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('Закрыть'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        FlatButton(
+                          child: Text(data[position]['author']['id'] == user.uid
+                              ? 'Удалить'
+                              : 'Принять'),
+                          onPressed: () {
+                            if (data[position]['author']['id'] == user.uid) {
+                              fireBloc.deleteSuggestion(data[position]['id']);
+                              Navigator.of(context).pop();
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text(
+                                      "Предложение \"${data[position]['comment']}\" удалено")));
+                            } else {
+                              fireBloc.createNotice(
+                                  data[position]['author']['id'], {
+                                'idGame': data[position]['id'],
+                                'type': 2, // answer
+                                'author': {
+                                  'name': user.displayName ?? user.email,
+                                  'id': user.uid
+                                },
+                                'date': DateTime.now().millisecondsSinceEpoch,
+                                'game': data[position],
+                                'time':
+                                    0 - DateTime.now().millisecondsSinceEpoch,
+                              });
+                              Navigator.of(context).pop();
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text(
+                                      "Предложение \"${data[position]['comment']}\" принято")));
+                            }
+                          }, // onPressed
+                        ),
+                      ],
+                    );
+                  });
+            },
+          ),
+        );
       },
     );
   }

@@ -34,7 +34,6 @@ class _NewsState extends State<News> {
       });
       return (json.decode(response.body));
     } else {
-      // If that response was not OK, throw an error.
       throw Exception('Failed to load news');
     }
   }
