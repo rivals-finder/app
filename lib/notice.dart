@@ -60,7 +60,7 @@ class _NoticeState extends State<Notice> {
                 if (!snapshot.hasData ||
                     (snapshot.hasData &&
                         snapshot.data.snapshot.value == null)) {
-                  return Text('Empty');
+                  return Center( child: Text('Уведомлений нет') );
                 } else {
                   List data = [];
                   Map _map;
