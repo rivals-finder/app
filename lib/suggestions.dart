@@ -106,60 +106,105 @@ class _SuggestionsState extends State<Suggestions> {
       itemBuilder: (context, position) {
         DateTime date =
             DateTime.fromMillisecondsSinceEpoch(data[position]['actualTime']);
-    var formatter = new DateFormat('Hm');
-    String formatted = 'актуально до ' + formatter.format(date);
-        return Dismissible(
-          key: Key(data[position]['id']),
-          direction: _changeDirection(data[position]['author']['id']),
-          confirmDismiss: (DismissDirection direction) async {
-            if (data[position]['author']['id'] != user.uid) {
-              fireBloc.createNotice(
-                data[position]['author']['id'],
-                {
-                  'idGame': data[position]['id'],
-                  'type': 2,// answer
-                  'author': {'name': user.displayName ?? user.email, 'id': user.uid},
-                  'date': DateTime.now().millisecondsSinceEpoch,
-                  'game': data[position],
-                  'time': 0 - DateTime.now().millisecondsSinceEpoch,
+        var formatter = new DateFormat('Hm');
+        String formatted = 'актуально до ' + formatter.format(date);
+            return Dismissible(
+              key: Key(data[position]['id']),
+              direction: _changeDirection(data[position]['author']['id']),
+              confirmDismiss: (DismissDirection direction) async {
+                if (data[position]['author']['id'] != user.uid) {
+                  fireBloc.createNotice(
+                    data[position]['author']['id'],
+                    {
+                      'idGame': data[position]['id'],
+                      'type': 2,// answer
+                      'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+                      'date': DateTime.now().millisecondsSinceEpoch,
+                      'game': data[position],
+                      'time': 0 - DateTime.now().millisecondsSinceEpoch,
+                    }
+                  ); // createNotice
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text("${data[position]['comment']} confirmed")));
+                  return false;
+                } else {
+                  return true;
                 }
-              ); // createNotice
-              Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text("${data[position]['comment']} confirmed")));
-              return false;
-            } else {
-              return true;
-            }
-          }, // confirmDismiss
-          onDismissed: (direction) {
-            Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text("${data[position]['comment']} deleted")));
-            fireBloc.deleteSuggestion(data[position]['id']);
-          }, // onDismissed
-          background: Container(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.all(16.0),
-              child: Icon(
-                Icons.check,
-                color: Colors.white,
+              }, // confirmDismiss
+              onDismissed: (direction) {
+                Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text("${data[position]['comment']} deleted")));
+                fireBloc.deleteSuggestion(data[position]['id']);
+              }, // onDismissed
+              background: Container(
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.all(16.0),
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.white,
+                  ),
+                  color: Colors.green),
+              secondaryBackground: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.all(16.0),
+                  child: Icon(
+                    Icons.clear,
+                    color: Colors.white,
+                  ),
+                  color: Colors.red),
+              child: ListTile(
+                leading: _getIconFromId(data[position]['type']),
+                title: Text(data[position]['comment']),
+                subtitle: Text('${data[position]['author']['name']}'),
+                trailing: Text(formatted),
+                onTap: () async {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          data[position]['author']['id'] == user.uid ?
+                          'Вы хотите удалить предложение?' : 'Вы хотите принять предложение?'
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text('Закрыть'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            child: Text(
+                              data[position]['author']['id'] == user.uid ?
+                                'Удалить' : 'Принять'
+                            ),
+                            onPressed: () {
+                              if (data[position]['author']['id'] == user.uid) {
+                                fireBloc.deleteSuggestion(data[position]['id']);
+                                Navigator.of(context).pop();
+                              } else {
+                                fireBloc.createNotice(
+                                  data[position]['author']['id'],
+                                  {
+                                    'idGame': data[position]['id'],
+                                    'type': 2,// answer
+                                    'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+                                    'date': DateTime.now().millisecondsSinceEpoch,
+                                    'game': data[position],
+                                    'time': 0 - DateTime.now().millisecondsSinceEpoch,
+                                  }
+                                );
+                                Navigator.of(context).pop();
+                              }
+                            }, // onPressed
+                          ),
+                        ],
+                      );
+                    }
+                  );
+                },
               ),
-              color: Colors.green),
-          secondaryBackground: Container(
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.all(16.0),
-              child: Icon(
-                Icons.clear,
-                color: Colors.white,
-              ),
-              color: Colors.red),
-          child: ListTile(
-            leading: _getIconFromId(data[position]['type']),
-            title: Text(data[position]['comment']),
-            subtitle: Text('${data[position]['author']['name']}'),
-            trailing: Text(formatted),
-            onTap: null,
-          ),
-        );
+            );
       },
     );
   }
