@@ -140,7 +140,7 @@ class _NoticeState extends State<Notice> {
       key: Key(data['id']),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        createNotice(user.uid, {});
+        fireBloc.deleteNotice(data['id']);
         Scaffold.of(context).showSnackBar(SnackBar(
             content: Text("${data['text']} dismissed")));
       },
@@ -166,7 +166,7 @@ class _NoticeState extends State<Notice> {
       key: Key(data['id']),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        createNotice(user.uid, {});
+        fireBloc.deleteNotice(data['id']);
         Scaffold.of(context).showSnackBar(SnackBar(
             content: Text("${data['text']} dismissed")));
       },
