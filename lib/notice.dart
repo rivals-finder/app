@@ -72,7 +72,19 @@ class _NoticeState extends State<Notice> {
                   return ListView.builder(
                     itemCount: data.length,
                     itemBuilder: (context, key) {
-                      return _answerDismissible(data[key]);
+                      switch(data[key]['type']) {
+                        case 1:
+                          return _allowDismissible(data[key]);
+                        break;
+                        case 2:
+                          return _answerDismissible(data[key]);
+                        break;
+                        case 3:
+                          return _declineDismissible(data[key]);
+                        break;
+                        default:
+                          return null;
+                      }
                     },
                   );
                 }
@@ -113,5 +125,13 @@ class _NoticeState extends State<Notice> {
         trailing: Text(data['date'].toString()),
       ),
     );
+  }
+
+  Dismissible _allowDismissible(data) {
+    return null;
+  }
+
+  Dismissible _declineDismissible(data) {
+    return null;
   }
 }
