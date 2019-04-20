@@ -72,42 +72,46 @@ class _NoticeState extends State<Notice> {
                   return ListView.builder(
                     itemCount: data.length,
                     itemBuilder: (context, key) {
-                      return Dismissible(
-                        key: Key(data[key]['id']),
-                        onDismissed: (direction) {
-                          createNotice(user.uid, {});
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                              content: Text("${data[key]['text']} dismissed")));
-                        },
-                        background: Container(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.all(16.0),
-                            child: Icon(
-                              Icons.check,
-                              color: Colors.white,
-                            ),
-                            color: Colors.green),
-                        secondaryBackground: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.all(16.0),
-                            child: Icon(
-                              Icons.clear,
-                              color: Colors.white,
-                            ),
-                            color: Colors.red),
-                        child: ListTile(
-                          leading: Icon(Icons.phone),
-                          title: Text(data[key]['game']['comment']),
-                          subtitle: Text(data[key]['author']['name']),
-                          trailing: Text(data[key]['date'].toString()),
-                        ),
-                      );
+                      return _answerDismissible(data[key]);
                     },
                   );
                 }
               },
             )
           : CircularProgressIndicator(),
+    );
+  }
+
+  Dismissible _answerDismissible(data) {
+    return Dismissible(
+      key: Key(data['id']),
+      onDismissed: (direction) {
+        createNotice(user.uid, {});
+        Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text("${data['text']} dismissed")));
+      },
+      background: Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
+          color: Colors.green),
+      secondaryBackground: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.clear,
+            color: Colors.white,
+          ),
+          color: Colors.red),
+      child: ListTile(
+        leading: Icon(Icons.help),
+        title: Text(data['author']['name']),
+        subtitle: Text('Откликнулся на \'${data['game']['comment']}\''),
+        trailing: Text(data['date'].toString()),
+      ),
     );
   }
 }
