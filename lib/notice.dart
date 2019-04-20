@@ -63,33 +63,44 @@ class _NoticeState extends State<Notice> {
       appBar: AppBar(title: Text('Notice'), centerTitle: true),
       body: user != null
           ? StreamBuilder(
-        stream: fireBloc.getNoticeStream(user.uid),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData ||
-              (snapshot.hasData &&
-                  snapshot.data.snapshot.value == null)) {
-            return Center(child: Text('Уведомлений нет'));
-          } else {
-            List data = [];
-            Map _map;
-            _map = snapshot.data.snapshot.value;
-            _map.forEach((key, value) {
-              value.putIfAbsent('id', () => key);
-              data.add(value);
-            });
-            return ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, key) {
-                return _answerDismissible(data[key]);
+              stream: fireBloc.getNoticeStream(user.uid),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData ||
+                    (snapshot.hasData &&
+                        snapshot.data.snapshot.value == null)) {
+                  return Center( child: Text('Уведомлений нет') );
+                } else {
+                  List data = [];
+                  Map _map;
+                  _map = snapshot.data.snapshot.value;
+                  _map.forEach((key, value) {
+                    value.putIfAbsent('id', () => key);
+                    data.add(value);
+                  });
+                  return ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, key) {
+                      switch(data[key]['type']) {
+                        case 1:
+                          return _allowDismissible(data[key]);
+                        break;
+                        case 2:
+                          return _answerDismissible(data[key]);
+                        break;
+                        case 3:
+                          return _declineDismissible(data[key]);
+                        break;
+                        default:
+                          return null;
+                      }
+                    },
+                  );
+                }
               },
-            );
-          }
-        },
-      )
+            )
           : CircularProgressIndicator(),
     );
   }
-
 
   Dismissible _answerDismissible(data) {
     return Dismissible(
