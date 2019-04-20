@@ -32,12 +32,8 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   FireBloc fireBloc;
   CustomPopupMenu _selectedChoices = choices[0];
+  Suggestions _suggestions = Suggestions();
 
-  final List<Widget> _children = [
-    Suggestions(),
-    News(),
-    Chat(),
-  ];
 
   void initState() {
     super.initState();
@@ -58,6 +54,12 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+
+  final List<Widget> _children = [
+    Suggestions(filter: choices.indexOf(_selectedChoices) - 1),
+    News(),
+    Chat()
+  ];
     return Scaffold(
       appBar: AppBar(
         title: Text('Rivals Finder'),
