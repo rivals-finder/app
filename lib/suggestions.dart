@@ -113,7 +113,7 @@ class _SuggestionsState extends State<Suggestions> {
             DateTime.fromMillisecondsSinceEpoch(data[position]['actualTime']);
         bool notToday = date.day > DateTime.now().day;
         var formatter = new DateFormat('Hm');
-        var formatterDate = new DateFormat('d.MM');
+        var formatterDate = new DateFormat('d/MM');
         String formatted = 'до ' + formatter.format(date);
         String formattedDate = 'до ' + formatterDate.format(date);
         return Dismissible(

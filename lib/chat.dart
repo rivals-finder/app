@@ -47,9 +47,9 @@ class _ChatState extends State<Chat> {
             child: StreamBuilder(
               stream: fireBloc.getChatStream(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData ||
-                    (snapshot.hasData &&
-                        snapshot.data.snapshot.value == null)) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                } else if ((snapshot.data.snapshot.value == null)) {
                   return Center(child: Text("Чат пуст. Будьте первым!"));
                 } else {
                   List data = [];
@@ -60,7 +60,7 @@ class _ChatState extends State<Chat> {
 
                     data.add(value);
                   });
-                  data.sort((c, n) => c['time'] - n['time']);
+                  data.sort((c, n) => n['time'] - c['time']);
                   return _buildContent(data);
                 }
               },
@@ -104,7 +104,6 @@ class _ChatState extends State<Chat> {
   }
 
   Widget forScroll(data, key) {
-    
     bool mine = data[key]['author']['id'] == user.uid;
     if (mine) {
       return Dismissible(

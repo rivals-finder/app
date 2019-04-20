@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './bloc/bloc.dart';
+import 'package:intl/intl.dart';
 
 class Notice extends StatefulWidget {
   Notice({Key key}) : super(key: key);
@@ -22,13 +23,7 @@ class _NoticeState extends State<Notice> {
   void initState() {
     super.initState();
     fireBloc = BlocProvider.of(context);
-    getList();
     getCurrent();
-  }
-
-  getList() async {
-    var q = await fireBloc.getTestList();
-    print(q);
   }
 
   createNotice(uid, map) async {
@@ -104,6 +99,9 @@ class _NoticeState extends State<Notice> {
   }
 
   Dismissible _answerDismissible(data) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(data['date']);
+    var formatter = new DateFormat('Hm');
+    String formatted = formatter.format(date);
     return Dismissible(
       key: Key(data['id']),
       onDismissed: (direction) {
@@ -135,10 +133,13 @@ class _NoticeState extends State<Notice> {
           ),
           color: Colors.red),
       child: ListTile(
-          leading: Icon(Icons.help),
+          leading: Icon(
+            Icons.help,
+            size: 40,
+          ),
           title: Text(data['author']['name']),
           subtitle: Text('Откликнулся на \'${data['game']['comment']}\''),
-          trailing: Text(data['date'].toString()),
+          trailing: Text(formatted),
           onTap: () async {
             int type;
             showDialog(
@@ -151,7 +152,6 @@ class _NoticeState extends State<Notice> {
                           child: Text('Принять'),
                           onPressed: () {
                             type = 1;
-
                             fireBloc.createNotice(data['author']['id'], {
                               'idGame': data['game']['id'],
                               'type': type,
@@ -170,7 +170,6 @@ class _NoticeState extends State<Notice> {
                           child: Text('Отклонить'),
                           onPressed: () {
                             type = 3;
-
                             fireBloc.createNotice(data['author']['id'], {
                               'idGame': data['game']['id'],
                               'type': type,
