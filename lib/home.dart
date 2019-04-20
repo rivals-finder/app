@@ -84,7 +84,7 @@ class _HomeState extends State<Home> {
               );
             },
           ),
-          PopupMenuButton<CustomPopupMenu>(
+          _selectedIndex == 0 ? PopupMenuButton<CustomPopupMenu>(
             initialValue: choices[choices.indexOf(_selectedChoices)],
             onSelected: _select,
             itemBuilder: (BuildContext context) {
@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
                 );
               }).toList();
             },
-          ),
+          ) : Container()
         ],
       ),
       body: Center(child: _children[_selectedIndex]),
