@@ -13,6 +13,7 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   FireBloc fireBloc;
   FirebaseUser user;
+  final ScrollController listScrollController = new ScrollController();
 
   final myController = TextEditingController();
   String text;
@@ -41,8 +42,8 @@ class _ChatState extends State<Chat> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          Expanded(
-            flex: 1,
+          new Expanded(
+            // flex: 1,
             child: StreamBuilder(
               stream: fireBloc.getChatStream(),
               builder: (context, snapshot) {
@@ -102,45 +103,50 @@ class _ChatState extends State<Chat> {
     myController.clear();
   }
 
-  DismissDirection _changeDirection(id) {
-    bool mine = id == user.uid;
+  Widget forScroll(data, key) {
+    
+    bool mine = data[key]['author']['id'] == user.uid;
     if (mine) {
-      return DismissDirection.endToStart;
+      return Dismissible(
+        key: Key(data[key]['id']),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: (DismissDirection direction) async {
+          if (data[key]['author']['id'] != user.uid) {
+            return false;
+          } else {
+            return true;
+          }
+        },
+        onDismissed: (direction) {
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text("message deleted")));
+          fireBloc.deleteMessageChat(data[key]['id']);
+        },
+        background: Container(
+            alignment: Alignment.topRight,
+            padding: const EdgeInsets.all(16.0),
+            child: Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            color: Colors.white),
+        child: _messageModifier(data, key),
+      );
     } else {
-      return null;
+      return Container(
+        child: _messageModifier(data, key),
+      );
     }
   }
 
   Widget _buildContent(data) {
     double width = MediaQuery.of(context).size.width;
     return ListView.builder(
+      controller: listScrollController,
+      reverse: true,
       itemCount: data.length,
       itemBuilder: (context, key) {
-        return Dismissible(
-          key: Key(data[key]['id']),
-          direction: _changeDirection(data[key]['author']['id']),
-          confirmDismiss: (DismissDirection direction) async {
-            if (data[key]['author']['id'] != user.uid) {
-              return false;
-            } else {
-              return true;
-            }
-          },
-          onDismissed: (direction) {
-            Scaffold.of(context)
-                .showSnackBar(SnackBar(content: Text("message deleted")));
-            fireBloc.deleteMessageChat(data[key]['id']);
-          },
-          background: Container(
-              alignment: Alignment.topRight,
-              padding: const EdgeInsets.all(16.0),
-              child: Icon(
-                Icons.delete,
-                color: Colors.red,
-              ),
-              color: Colors.white),
-          child: _messageModifier(data, key),
-        );
+        return forScroll(data, key);
       },
     );
   }
