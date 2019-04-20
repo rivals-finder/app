@@ -106,18 +106,18 @@ class _NoticeState extends State<Notice> {
     return Dismissible(
       key: Key(data['id']),
       onDismissed: (direction) {
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text("${data['text']} dismissed")));
+        // Scaffold.of(context).showSnackBar(SnackBar(
+        //     content: Text("${data['text']} dismissed")));
         int type = direction == DismissDirection.startToEnd ? 1 : 3;
         fireBloc.createNotice(data['author']['id'], {
           'idGame': data['game']['id'],
-          'type': type,// answer
+          'type': type,
           'author': {'name': user.displayName ?? user.email, 'id': user.uid},
           'date': DateTime.now().millisecondsSinceEpoch,
           'game': data['game'],
           'time': 0 - DateTime.now().millisecondsSinceEpoch,
         });
-        fireBloc.deleteNotice(data['id']);
+        fireBloc.deleteNotice(user.uid, data['id']);
       },
       background: Container(
           alignment: Alignment.centerLeft,
@@ -149,7 +149,7 @@ class _NoticeState extends State<Notice> {
       key: Key(data['id']),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        fireBloc.deleteNotice(data['id']);
+        fireBloc.deleteNotice(user.uid, data['id']);
         Scaffold.of(context).showSnackBar(SnackBar(
             content: Text("${data['text']} dismissed")));
       },
@@ -175,7 +175,7 @@ class _NoticeState extends State<Notice> {
       key: Key(data['id']),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        fireBloc.deleteNotice(data['id']);
+        fireBloc.deleteNotice(user.uid, data['id']);
         Scaffold.of(context).showSnackBar(SnackBar(
             content: Text("${data['text']} dismissed")));
       },
