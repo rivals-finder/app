@@ -12,6 +12,13 @@ class _NoticeState extends State<Notice> {
   FireBloc fireBloc;
   FirebaseUser user;
 
+  List<String> _games = <String>[
+    'Теннис',
+    'Бильярд',
+    'Кикер',
+    'Дартс',
+  ];
+
   void initState() {
     super.initState();
     fireBloc = BlocProvider.of(context);
@@ -160,7 +167,7 @@ class _NoticeState extends State<Notice> {
       child: ListTile(
         leading: Icon(Icons.clear),
         title: Text(data['author']['name']),
-        subtitle: Text('Отклонил игру \'${data['game']['type']}\''),
+        subtitle: Text('Отклонил игру \'${_games[data['game']['type']]}\''),
       ),
     );
   }
@@ -184,7 +191,7 @@ class _NoticeState extends State<Notice> {
       child: ListTile(
         leading: Icon(Icons.check),
         title: Text(data['author']['name']),
-        subtitle: Text('Подтвердил игру в \'${data['game']['type']}\''),
+        subtitle: Text('Подтвердил игру в \'${_games[data['game']['type']]}\''),
       ),
     );
   }
