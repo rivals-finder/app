@@ -20,15 +20,12 @@ class _NewsState extends State<News> {
   }
 
   launchURL(String url) {
-    if(url!="")
-      launch(url);
-    else
-      launch("https://google.com");
+    if (url != "") launch(url);
   }
 
   Future fetchPost() async {
     final response =
-    await http.get("https://perfect-rivals-finder.herokuapp.com/mock");
+        await http.get('https://perfect-rivals-finder.herokuapp.com/news/');
 
     if (response.statusCode == 200) {
       print(List.from(json.decode(response.body)['items']));
@@ -47,18 +44,21 @@ class _NewsState extends State<News> {
     return news.length == 0 ? CircularProgressIndicator() : _buildContent();
   }
 
-  Widget _buildContent(){
-    return ListView.builder(
+  Widget _buildContent() {
+    return ListView.separated(
         itemCount: news.length,
-        itemBuilder: (context, position){
-          return ListTile(
-            title: Text(news[position]['title']),
-            subtitle: Text(news[position]['text'], style:TextStyle(fontSize: 12.0)),
-            trailing: Text(news[position]['date'], style:TextStyle(color:Colors.grey, fontSize: 10.0)),
-              onTap: () { launchURL(news[position]['link']); }
-          );
-        }
-    );
+        separatorBuilder: (BuildContext context, int index) => Divider(),
+        itemBuilder: (context, position) {
+          var listTile = ListTile(
+              title: Text(news[position]['title']),
+              subtitle: Text(news[position]['text'],
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12.0)),
+              onTap: () {
+                launchURL(news[position]['link']);
+              });
+          return listTile;
+        });
   }
-
 }
