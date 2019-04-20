@@ -106,8 +106,6 @@ class _NoticeState extends State<Notice> {
     return Dismissible(
       key: Key(data['id']),
       onDismissed: (direction) {
-        // Scaffold.of(context).showSnackBar(SnackBar(
-        //     content: Text("${data['text']} dismissed")));
         int type = direction == DismissDirection.startToEnd ? 1 : 3;
         fireBloc.createNotice(data['author']['id'], {
           'idGame': data['game']['id'],
@@ -150,8 +148,6 @@ class _NoticeState extends State<Notice> {
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         fireBloc.deleteNotice(user.uid, data['id']);
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text("${data['text']} dismissed")));
       },
       background: Container(
           alignment: Alignment.centerRight,
@@ -164,7 +160,7 @@ class _NoticeState extends State<Notice> {
       child: ListTile(
         leading: Icon(Icons.phone),
         title: Text(data['author']['name']),
-        subtitle: Text('Подтвердил игру \'${data['game']['type']}\''),
+        subtitle: Text('Отклонил игру \'${data['game']['type']}\''),
       ),
     );
   }
@@ -176,21 +172,19 @@ class _NoticeState extends State<Notice> {
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         fireBloc.deleteNotice(user.uid, data['id']);
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text("${data['text']} dismissed")));
       },
       background: Container(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.centerRight,
           padding: const EdgeInsets.all(16.0),
           child: Icon(
-            Icons.check,
+            Icons.clear,
             color: Colors.white,
           ),
-          color: Colors.green),
+          color: Colors.red),
       child: ListTile(
         leading: Icon(Icons.phone),
         title: Text(data['author']['name']),
-        subtitle: Text('Отклонил игру в \'${data['game']['type']}\''),
+        subtitle: Text('Подтвердил игру в \'${data['game']['type']}\''),
       ),
     );
   }
