@@ -140,7 +140,7 @@ class _NoticeState extends State<Notice> {
           ),
           title: Text(data['author']['name']),
           subtitle: Text('Откликнулся на ' +
-              (data['game']['comment']
+              (data['game']['comment'] != ""
                   ? "'" + data['game']['comment'] + "'"
                   : 'предложение')),
           trailing: Text(formatted),
