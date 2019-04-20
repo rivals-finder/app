@@ -118,7 +118,7 @@ class _ChatState extends State<Chat> {
         },
         onDismissed: (direction) {
           Scaffold.of(context)
-              .showSnackBar(SnackBar(content: Text("message deleted")));
+              .showSnackBar(SnackBar(content: Text("Сообщение удалено")));
           fireBloc.deleteMessageChat(data[key]['id']);
         },
         background: Container(

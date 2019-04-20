@@ -139,7 +139,10 @@ class _NoticeState extends State<Notice> {
             size: 40,
           ),
           title: Text(data['author']['name']),
-          subtitle: Text('Откликнулся на \'${data['game']['comment']}\''),
+          subtitle: Text('Откликнулся на ' +
+              (data['game']['comment']
+                  ? "'" + data['game']['comment'] + "'"
+                  : '')),
           trailing: Text(formatted),
           onTap: () async {
             int type;
