@@ -46,9 +46,17 @@ class FireBloc extends BlocBase {
     databaseReference.reference().child("Chat").push().set(map);
   }
 
+  deleteNotice(authorUid, noticeUid) async {
+    databaseReference.reference().child('Notice').child(authorUid).child(noticeUid).remove();
+  }
+
   void createNotice(uid, map) async {
     var item = databaseReference.reference().child("Notice/" + uid).push();
     await item.set(map);
+  }
+
+  getNoticeStream(uid) {
+    return databaseReference.reference().child("Notice/" + uid).limitToLast(10).onValue;
   }
 
   getTestList() async {

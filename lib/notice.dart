@@ -10,11 +10,13 @@ class Notice extends StatefulWidget {
 
 class _NoticeState extends State<Notice> {
   FireBloc fireBloc;
+  FirebaseUser user;
 
   void initState() {
     super.initState();
     fireBloc = BlocProvider.of(context);
     getList();
+    getCurrent();
   }
 
   getList() async {
@@ -22,109 +24,169 @@ class _NoticeState extends State<Notice> {
     print(q);
   }
 
-  final List<Map> _items = [
-    {
-      'id': 1,
-      'name': 'Petr',
-      'type': 0,
-      'text': 'Tralalala',
-      'date': '02.02.2017',
-    },
-    {
-      'id': 2,
-      'name': 'Anna',
-      'type': 0,
-      'text': 'asfafa',
-      'date': '20.04.2017',
-    },
-    {
-      'id': 3,
-      'name': 'Dasha',
-      'type': 0,
-      'text': 'hjl',
-      'date': '07.12.2017',
-    },
-    {
-      'id': 4,
-      'name': 'Vlad',
-      'type': 0,
-      'text': 'iopui',
-      'date': '04.01.2018',
-    },
-    {
-      'id': 5,
-      'name': 'Maks',
-      'type': 0,
-      'text': 'zxgxfdf',
-      'date': '13.02.2018',
-    },
-    {
-      'id': 6,
-      'name': 'Sasha',
-      'type': 0,
-      'text': 'qgfdb',
-      'date': '18.06.2018',
-    }
-  ];
-
   createNotice(uid, map) async {
     UserInfo user = await fireBloc.getCurrentUser();
     fireBloc.createNotice(uid, {
       'idGame': 'id',
       'type': 0,
       'author': {'name': user.displayName ?? user.email, 'id': user.uid},
-      'date': DateTime.now().millisecondsSinceEpoch,
+      'date': DateTime
+          .now()
+          .millisecondsSinceEpoch,
       'game': {
         'type': 1,
         'author': {'name': 'test', 'id': 'id'},
-        'actualTime': DateTime.now().millisecondsSinceEpoch,
+        'actualTime': DateTime
+            .now()
+            .millisecondsSinceEpoch,
         'comment': 'Go igrat',
-        'time': 0 - DateTime.now().millisecondsSinceEpoch
+        'time': 0 - DateTime
+            .now()
+            .millisecondsSinceEpoch
       },
-      'time': 0 - DateTime.now().millisecondsSinceEpoch,
+      'time': 0 - DateTime
+          .now()
+          .millisecondsSinceEpoch,
+    });
+  }
+
+  getCurrent() async {
+    user = await fireBloc.getCurrentUser();
+    setState(() {
+      user = user;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
+    return Scaffold(
       appBar: AppBar(title: Text('Notice'), centerTitle: true),
-      body: ListView.builder(
-        itemCount: _items.length,
-        itemBuilder: (context, key) {
-          return Dismissible(
-            key: Key(_items[key]['name']),
-            onDismissed: (direction) {
-              createNotice('5', {});
-              Scaffold.of(context).showSnackBar(
-                  SnackBar(content: Text("${_items[key]['text']} dismissed")));
-            },
-            background: Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.all(16.0),
-                child: Icon(
-                  Icons.check,
-                  color: Colors.white,
-                ),
-                color: Colors.green),
-            secondaryBackground: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.all(16.0),
-                child: Icon(
-                  Icons.clear,
-                  color: Colors.white,
-                ),
-                color: Colors.red),
-            child: ListTile(
-              leading: Icon(Icons.phone),
-              title: Text(_items[key]['text']),
-              subtitle: Text(_items[key]['name']),
-              trailing: Text(_items[key]['date']),
-            ),
-          );
-        },
-      ),
-    ));
+      body: user != null
+          ? StreamBuilder(
+              stream: fireBloc.getNoticeStream(user.uid),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData ||
+                    (snapshot.hasData &&
+                        snapshot.data.snapshot.value == null)) {
+                  return Center( child: Text('Уведомлений нет') );
+                } else {
+                  List data = [];
+                  Map _map;
+                  _map = snapshot.data.snapshot.value;
+                  _map.forEach((key, value) {
+                    value.putIfAbsent('id', () => key);
+                    data.add(value);
+                  });
+                  return ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, key) {
+                      switch(data[key]['type']) {
+                        case 1:
+                          return _allowDismissible(data[key]);
+                        break;
+                        case 2:
+                          return _answerDismissible(data[key]);
+                        break;
+                        case 3:
+                          return _declineDismissible(data[key]);
+                        break;
+                        default:
+                          return null;
+                      }
+                    },
+                  );
+                }
+              },
+            )
+          : CircularProgressIndicator(),
+    );
   }
+
+  Dismissible _answerDismissible(data) {
+    return Dismissible(
+      key: Key(data['id']),
+      onDismissed: (direction) {
+        int type = direction == DismissDirection.startToEnd ? 1 : 3;
+        fireBloc.createNotice(data['author']['id'], {
+          'idGame': data['game']['id'],
+          'type': type,
+          'author': {'name': user.displayName ?? user.email, 'id': user.uid},
+          'date': DateTime.now().millisecondsSinceEpoch,
+          'game': data['game'],
+          'time': 0 - DateTime.now().millisecondsSinceEpoch,
+        });
+        fireBloc.deleteNotice(user.uid, data['id']);
+      },
+      background: Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
+          color: Colors.green),
+      secondaryBackground: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.clear,
+            color: Colors.white,
+          ),
+          color: Colors.red),
+      child: ListTile(
+        leading: Icon(Icons.help),
+        title: Text(data['author']['name']),
+        subtitle: Text('Откликнулся на \'${data['game']['comment']}\''),
+        trailing: Text(data['date'].toString()),
+      ),
+    );
+  }
+
+  Dismissible _declineDismissible(data) {
+    return Dismissible(
+      key: Key(data['id']),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        fireBloc.deleteNotice(user.uid, data['id']);
+      },
+      background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.clear,
+            color: Colors.white,
+          ),
+          color: Colors.red),
+      child: ListTile(
+        leading: Icon(Icons.clear),
+        title: Text(data['author']['name']),
+        subtitle: Text('Отклонил игру \'${data['game']['type']}\''),
+      ),
+    );
+  }
+
+
+  Dismissible _allowDismissible(data) {
+    return Dismissible(
+      key: Key(data['id']),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        fireBloc.deleteNotice(user.uid, data['id']);
+      },
+      background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.all(16.0),
+          child: Icon(
+            Icons.clear,
+            color: Colors.white,
+          ),
+          color: Colors.red),
+      child: ListTile(
+        leading: Icon(Icons.check),
+        title: Text(data['author']['name']),
+        subtitle: Text('Подтвердил игру в \'${data['game']['type']}\''),
+      ),
+    );
+  }
+
 }
