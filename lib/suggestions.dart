@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import './bloc/bloc.dart';
 import './Icons/rivals_finder_icons.dart';
+import 'package:intl/intl.dart';
 
 class Suggestions extends StatefulWidget {
-  Suggestions({
-    Key key,
-    this.filter
-  }) : super(key: key);
+  Suggestions({Key key, this.filter}) : super(key: key);
 
   final filter;
 
@@ -92,10 +90,10 @@ class _SuggestionsState extends State<Suggestions> {
           RivalsFinderIcons.darts,
           color: Colors.black,
         );
-      break;
+        break;
       default:
         return null;
-      break;
+        break;
     }
   }
 
@@ -103,13 +101,17 @@ class _SuggestionsState extends State<Suggestions> {
     return ListView.builder(
       itemCount: data.length,
       itemBuilder: (context, position) {
+        DateTime date =
+            DateTime.fromMillisecondsSinceEpoch(data[position]['actualTime']);
+    var formatter = new DateFormat('Hm');
+    String formatted = 'актуально до ' + formatter.format(date);
         return Dismissible(
           key: Key(data[position]['id']),
           direction: _changeDirection(data[position]['author']['id']),
           confirmDismiss: (DismissDirection direction) async {
             if (data[position]['author']['id'] != user.uid) {
               Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text("${data[position]['comment']} confirmed")));
+                  content: Text("${data[position]['comment']} confirmed")));
               return false;
             } else {
               return true;
@@ -117,7 +119,7 @@ class _SuggestionsState extends State<Suggestions> {
           },
           onDismissed: (direction) {
             Scaffold.of(context).showSnackBar(SnackBar(
-              content: Text("${data[position]['comment']} deleted")));
+                content: Text("${data[position]['comment']} deleted")));
             fireBloc.deleteSuggestion(data[position]['id']);
           },
           background: Container(
@@ -140,7 +142,7 @@ class _SuggestionsState extends State<Suggestions> {
             leading: _getIconFromId(data[position]['type']),
             title: Text(data[position]['comment']),
             subtitle: Text('${data[position]['author']['name']}'),
-            trailing: Text('${data[position]['actualTime']}'),
+            trailing: Text(formatted),
             onTap: null,
           ),
         );
