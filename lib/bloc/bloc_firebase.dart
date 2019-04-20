@@ -7,13 +7,21 @@ class FireBloc extends BlocBase {
   FirebaseAuth faInstance = FirebaseAuth.instance;
   FirebaseDatabase databaseReference = FirebaseDatabase.instance;
 
-  getSuggestionsStream() {
-    return databaseReference
+  getSuggestionsStream(type) {
+    var values =  databaseReference
         .reference()
-        .child('Suggestions')
-        .orderByChild('time')
+        .child('Suggestions');
+    // TODO: сделать с orderByChild('time)
+    return type >= 0 
+      ? values
+        .orderByChild('type')
+        .equalTo(type)
         .limitToLast(100)
-        .onValue;
+        .onValue
+      : values
+        .limitToLast(100)
+        .orderByChild('time')
+        .onValue;        
   }
 
   void createGame(map) async {

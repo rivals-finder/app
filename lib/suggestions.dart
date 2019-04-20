@@ -3,7 +3,12 @@ import './bloc/bloc.dart';
 import './Icons/rivals_finder_icons.dart';
 
 class Suggestions extends StatefulWidget {
-  Suggestions({Key key}) : super(key: key);
+  Suggestions({
+    Key key,
+    this.filter
+  }) : super(key: key);
+
+  final filter;
 
   @override
   _SuggestionsState createState() => _SuggestionsState();
@@ -30,7 +35,7 @@ class _SuggestionsState extends State<Suggestions> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder(
-        stream: fireBloc.getSuggestionsStream(),
+        stream: fireBloc.getSuggestionsStream(widget.filter),
         builder: (context, snapshot) {
           if (!snapshot.hasData ||
               (snapshot.hasData && snapshot.data.snapshot.value == null)) {
@@ -66,13 +71,13 @@ class _SuggestionsState extends State<Suggestions> {
     switch (id) {
       case 0:
         return Icon(
-          RivalsFinderIcons.billiard,
+          RivalsFinderIcons.ping_pong,
           color: Colors.black,
         );
         break;
       case 1:
         return Icon(
-          RivalsFinderIcons.darts,
+          RivalsFinderIcons.billiard,
           color: Colors.black,
         );
         break;
@@ -84,7 +89,7 @@ class _SuggestionsState extends State<Suggestions> {
         break;
       case 3:
         return Icon(
-          RivalsFinderIcons.ping_pong,
+          RivalsFinderIcons.darts,
           color: Colors.black,
         );
       break;
@@ -102,11 +107,18 @@ class _SuggestionsState extends State<Suggestions> {
           key: Key(data[position]['id']),
           direction: _changeDirection(data[position]['author']['id']),
           confirmDismiss: (DismissDirection direction) async {
+            if (data[position]['author']['id'] != user.uid) {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text("${data[position]['comment']} confirmed")));
+            } else {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text("${data[position]['comment']} deleted")));
+            }
             return false;
           },
           onDismissed: (direction) {
             Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text("${data[position]['comment']} dismissed")));
+                content: Text("${data[position]['comment']} deleted")));
           },
           background: Container(
               alignment: Alignment.centerLeft,
